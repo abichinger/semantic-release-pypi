@@ -1,0 +1,19 @@
+{
+  "name": "semantic-release-pypi",
+  "version": "1.0.0",
+  "description": "semantic-release plugin to publish a python package to PyPI",
+  "main": "index.js",
+  "repository": "https://github.com/abichinger/semantic-release-pypi",
+  "author": "Andreas Bichinger",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "jest": "^26.6.3"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "execa": "^4.1.0"
+  }
+}
