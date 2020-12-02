@@ -29,6 +29,7 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
   ]
 }
 ```
+An example using Github Actions can be found in the repo [semantic-release-pypi-example](https://github.com/abichinger/semantic-release-pypi-example).
 
 ## Options
 
