@@ -1,4 +1,28 @@
 const {verify, assertEnvVar, assertExitCode, assertPackage, verifyToken, verifySetupPy, verifyAuth} = require('../lib/verify')
+const path = require('path')
+const fs = require('fs')
+const { genPackage } = require('./util')
+
+
+const setupPy = '.tmp/verify/setup.py'
+const setupPyWithVersion = '.tmp/verify2/setup.py'
+let packageName = 'semantic-release-pypi-verify-test'
+
+let setupPyContent = `
+from setuptools import setup
+setup(version='1.0.0', description="test")
+`
+
+beforeAll(async () => {
+    await genPackage(setupPy, packageName)
+    await genPackage(setupPyWithVersion, packageName, setupPyContent)
+})
+
+afterAll(async () => {
+    fs.rmdirSync(path.dirname(setupPy), {recursive: true})
+    fs.rmdirSync(path.dirname(setupPyWithVersion), {recursive: true})
+})
+
 
 test('test assertEnvVar', async() => {
     expect(assertEnvVar('PATH')).toBe(undefined)
@@ -24,8 +48,8 @@ test('test verifyToken', async() => {
 })
 
 test('test verifySetupPy', async() => {
-    await expect(verifySetupPy('./python_package/setup.py')).resolves.toBe(undefined)
-    await expect(verifySetupPy('./python_package/setup_with_version.py')).rejects.toThrow()
+    await expect(verifySetupPy(setupPy)).resolves.toBe(undefined)
+    await expect(verifySetupPy(setupPyWithVersion)).rejects.toThrow()
 })
 
 test('test verifyAuth', async() => {

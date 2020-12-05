@@ -1,0 +1,44 @@
+const { verifyConditions, prepare, publish } = require('../index')
+const { genPackage } = require('./util')
+const fs = require('fs')
+const path = require('path')
+const { repoUrl } = require('../lib/defaultOptions')
+const { v4: uuidv4 } = require('uuid')
+
+let setupPy = '.tmp/package/setup.py'
+let setupPyDir = path.dirname(setupPy)
+
+let packageName = 'semantic-release-pypi-integration-test-'+uuidv4()
+
+let pluginConfig = {
+    setupPy: setupPy,
+    repoUrl: 'https://test.pypi.org/legacy/'
+}
+
+let context = {
+    nextRelease: {
+        version: '1.2.3'
+    }
+}
+
+beforeAll(async () => {
+    await genPackage(setupPy, packageName)
+})
+
+afterAll(async () => {
+    fs.rmdirSync(setupPyDir, {recursive: true})
+})
+
+test('test semantic-release-pypi', async() => {
+    if(!process.env['TESTPYPI_TOKEN']) {
+        console.warn('skipped test semantic-release-pypi because TESTPYPI_TOKEN is not set')
+        return
+    }
+
+    await verifyConditions(pluginConfig, context)
+    await prepare(pluginConfig, context)
+    await publish(pluginConfig, context)
+
+    console.log(`package successfully published: https://test.pypi.org/project/${packageName}`)
+
+}, 30000)
