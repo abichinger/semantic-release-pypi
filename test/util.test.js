@@ -2,6 +2,9 @@ const { getOption, normalizeVersion } = require('../lib/util')
 
 test('test getOption', async() => {
     expect(getOption({}, 'distDir')).toBe('dist')
+    expect(getOption({}, 'setupPy')).toBe('./setup.py')
+    expect(getOption({}, 'repoUrl')).toBe('https://upload.pypi.org/legacy/')
+
     expect(getOption({distDir: 'mydist'}, 'distDir')).toBe('mydist')
     expect(getOption({}, 'foo')).toBe(undefined)
 })

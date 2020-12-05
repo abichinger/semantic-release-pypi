@@ -14,7 +14,6 @@ semantic-release plugin to publish a python package to PyPI
 | Variable | Description
 | -------- | -----------
 | ```PYPI_TOKEN``` | [API token](https://test.pypi.org/help/#apitoken) for PyPI
-| [```TWINE_REPOSITORY```](https://twine.readthedocs.io/en/latest/#twine-upload) | The repository (package index) to upload the package to.
 
 ## Usage
 
@@ -37,3 +36,4 @@ An example using Github Actions can be found in the repo [semantic-release-pypi-
 | ------ | ---- | ------- | -----------
 | ```setupPy``` | str | ```./setup.py``` | location of ```setup.py```
 | ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to the directory of ```setup.py```
+| ```repoUrl``` | str | ```https://upload.pypi.org/legacy/``` | The repository (package index) to upload the package to.

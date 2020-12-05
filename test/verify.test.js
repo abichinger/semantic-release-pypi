@@ -1,4 +1,4 @@
-const {verify, assertEnvVar, assertExitCode, assertPackage, verifyToken, verifySetupPy} = require('../lib/verify')
+const {verify, assertEnvVar, assertExitCode, assertPackage, verifyToken, verifySetupPy, verifyAuth} = require('../lib/verify')
 
 test('test assertEnvVar', async() => {
     expect(assertEnvVar('PATH')).toBe(undefined)
@@ -26,4 +26,16 @@ test('test verifyToken', async() => {
 test('test verifySetupPy', async() => {
     await expect(verifySetupPy('./python_package/setup.py')).resolves.toBe(undefined)
     await expect(verifySetupPy('./python_package/setup_with_version.py')).rejects.toThrow()
+})
+
+test('test verifyAuth', async() => {
+    let repoUrl = 'https://test.pypi.org/legacy/'
+    
+    await expect(verifyAuth(repoUrl, '12345')).rejects.toThrow()
+    if(process.env['TESTPYPI_TOKEN']){
+        await expect(verifyAuth(repoUrl, process.env['TESTPYPI_TOKEN'])).resolves.toBe(undefined)
+    }
+    else {
+        console.warn('skipped verifyAuth because TESTPYPI_TOKEN is not set')
+    }
 })
