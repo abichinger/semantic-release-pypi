@@ -20,5 +20,12 @@
     "execa": "^4.1.0",
     "form-data": "^3.0.0",
     "got": "^11.8.0"
-  }
+  },
+  "keywords": [
+    "pypi",
+    "python",
+    "python package",
+    "semantic-release",
+    "publish"
+  ]
 }
