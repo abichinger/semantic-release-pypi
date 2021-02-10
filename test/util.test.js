@@ -28,4 +28,6 @@ test('test normalizeVersion', async() => {
 
     await expect(normalizeVersion('1.0.1-next')).rejects.toThrow()
     await expect(normalizeVersion('1.0.1-develop')).rejects.toThrow()
+
+    await expect(normalizeVersion('1 2 3')).rejects.toThrow()
 })
