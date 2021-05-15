@@ -3,7 +3,7 @@ semantic-release plugin to publish a python package to PyPI
 
 | Step | Description
 | ---- | -----------
-| ```verifyConditions``` | verify the environment variable ```PYPI_TOKEN```
+| ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>verify that `version` is not set inside `setup.py` (**version will be set in `setup.cfg`**)</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
 | ```prepare``` | Update the version in ```setup.cfg``` and create the distribution packages
 | ```publish``` | Publish the python package to the specified repository (default: pypi)
 
