@@ -11,9 +11,11 @@ semantic-release plugin to publish a python package to PyPI
 
 ## Environment variables
 
-| Variable | Description
-| -------- | -----------
-| ```PYPI_TOKEN``` | [API token](https://test.pypi.org/help/#apitoken) for PyPI
+| Variable | Description | Required | Default
+| -------- | ----------- | ----------- | -----------
+| ```PYPI_TOKEN``` | [API token](https://test.pypi.org/help/#apitoken) for PyPI | true | 
+| ```PYPI_USERNAME``` | Username for PyPI | false | ```__token__```
+| ```PYPI_REPO_URL``` | Repo URL for PyPI | false | See [Options](#options)
 
 ## Usage
 
