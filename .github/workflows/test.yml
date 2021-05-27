@@ -21,7 +21,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Python Packages
+    - name: Install Python packages
       run: python -m pip install --upgrade setuptools wheel twine
-    - run: yarn install
-    - run: yarn jest
+    - name: Install Node.js modules
+      run: yarn install
+    - name: Run tests
+      env:
+        TESTPYPI_TOKEN: ${{ secrets.TESTPYPI_TOKEN }}
+      run: yarn jest
