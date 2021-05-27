@@ -1,4 +1,4 @@
-const {verify, assertEnvVar, assertExitCode, assertPackage, verifyToken, verifySetupPy, verifyAuth} = require('../lib/verify')
+const {verify, assertEnvVar, assertExitCode, assertPackage, verifySetupPy, verifyAuth} = require('../lib/verify')
 const path = require('path')
 const fs = require('fs')
 const { genPackage } = require('./util')
@@ -40,11 +40,6 @@ test('test assertExitCode', async() => {
 test('test assertPackage', async() => {
     await expect(assertPackage('pip')).resolves.toBe(undefined)
     await expect(assertPackage('foo-bar-baz')).rejects.toThrow()
-})
-
-test('test verifyToken', async() => {
-    expect(verifyToken('pypi-1234567')).toBe(undefined)
-    expect(() => verifyToken('1234567')).toThrow()
 })
 
 test('test verifySetupPy', async() => {
