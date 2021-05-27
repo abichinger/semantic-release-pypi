@@ -55,9 +55,9 @@ test('test verifySetupPy', async() => {
 test('test verifyAuth', async() => {
     let repoUrl = 'https://test.pypi.org/legacy/'
     
-    await expect(verifyAuth(repoUrl, '12345')).rejects.toThrow()
+    await expect(verifyAuth(repoUrl, '__token__', '12345')).rejects.toThrow()
     if(process.env['TESTPYPI_TOKEN']){
-        await expect(verifyAuth(repoUrl, process.env['TESTPYPI_TOKEN'])).resolves.toBe(undefined)
+        await expect(verifyAuth(repoUrl, '__token__', process.env['TESTPYPI_TOKEN'])).resolves.toBe(undefined)
     }
     else {
         console.warn('skipped verifyAuth because TESTPYPI_TOKEN is not set')
