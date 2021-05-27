@@ -1,8 +1,7 @@
 const { verifyConditions, prepare, publish } = require('../index')
 const { genPackage } = require('./util')
-const fs = require('fs')
+const fs = require('fs-extra')
 const path = require('path')
-const { repoUrl } = require('../lib/defaultOptions')
 const { v4: uuidv4 } = require('uuid')
 
 let setupPy = '.tmp/package/setup.py'
@@ -26,7 +25,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    fs.rmdirSync(setupPyDir, {recursive: true})
+    fs.removeSync(setupPyDir)
 })
 
 test('test semantic-release-pypi', async() => {

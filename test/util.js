@@ -1,6 +1,6 @@
 const { setopt } = require('../lib/util')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 
 defaultContent = `
 from setuptools import setup

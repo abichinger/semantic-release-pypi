@@ -1,6 +1,6 @@
 const {verify, assertEnvVar, assertExitCode, assertPackage, verifySetupPy, verifyAuth} = require('../lib/verify')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 const { genPackage } = require('./util')
 
 
@@ -19,8 +19,8 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    fs.rmdirSync(path.dirname(setupPy), {recursive: true})
-    fs.rmdirSync(path.dirname(setupPyWithVersion), {recursive: true})
+    fs.removeSync(path.dirname(setupPy))
+    fs.removeSync(path.dirname(setupPyWithVersion))
 })
 
 

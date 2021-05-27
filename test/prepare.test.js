@@ -1,6 +1,6 @@
 const {setReleaseVersion, sDistPackage, bDistPackage} = require('../lib/prepare')
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs-extra')
 const { genPackage } = require('./util')
 
 const version = '1.0.1'
@@ -14,7 +14,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    fs.rmdirSync(setupPyDir, {recursive: true})
+    fs.removeSync(setupPyDir)
 })
 
 test('test prepare functions', async() => {
