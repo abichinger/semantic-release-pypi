@@ -17,7 +17,8 @@ let pluginConfig = {
 let context = {
     nextRelease: {
         version: '1.2.3'
-    }
+    },
+    logger: console
 }
 
 beforeAll(async () => {
