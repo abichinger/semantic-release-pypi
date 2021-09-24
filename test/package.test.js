@@ -18,7 +18,9 @@ let context = {
     nextRelease: {
         version: '1.2.3'
     },
-    logger: console
+    logger: {log: (m) => {process.stdout.write(m + '\n');}},
+    stdout: process.stdout,
+    stderr: process.stderr
 }
 
 beforeAll(async () => {
@@ -39,7 +41,5 @@ test('test semantic-release-pypi', async() => {
     await verifyConditions(pluginConfig, context)
     await prepare(pluginConfig, context)
     await publish(pluginConfig, context)
-
-    console.log(`package successfully published: https://test.pypi.org/project/${packageName}`)
 
 }, 30000)
