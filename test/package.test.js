@@ -43,3 +43,17 @@ test('test semantic-release-pypi', async() => {
     await publish(pluginConfig, context)
 
 }, 30000)
+
+test('test semantic-release-pypi with pypiPublish unset', async() => {
+    if(!process.env['TESTPYPI_TOKEN']) {
+        console.warn('skipped test semantic-release-pypi because TESTPYPI_TOKEN is not set')
+        return
+    }
+    process.env['PYPI_TOKEN'] = process.env['TESTPYPI_TOKEN']
+    pluginConfig.pypiPublish = false
+
+    await verifyConditions(pluginConfig, context)
+    await prepare(pluginConfig, context)
+    await publish(pluginConfig, context)
+
+}, 30000)
