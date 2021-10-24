@@ -109,3 +109,5 @@ todo.txt
 .env
 playground
 .tmp
+
+venv/
