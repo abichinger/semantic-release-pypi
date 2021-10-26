@@ -43,3 +43,12 @@ test('test semantic-release-pypi', async() => {
     await publish(pluginConfig, context)
 
 }, 30000)
+
+test('test semantic-release-pypi with pypiPublish unset', async() => {
+    pluginConfig.pypiPublish = false
+
+    await verifyConditions(pluginConfig, context)
+    await prepare(pluginConfig, context)
+    await publish(pluginConfig, context)
+
+}, 30000)
