@@ -1,6 +1,6 @@
 {
   "name": "semantic-release-pypi",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "semantic-release plugin to publish a python package to PyPI",
   "main": "index.js",
   "repository": "https://github.com/abichinger/semantic-release-pypi",
