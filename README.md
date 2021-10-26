@@ -39,7 +39,7 @@ An example using Github Actions can be found in the repo [semantic-release-pypi-
 | ```setupPy``` | str | ```./setup.py``` | location of ```setup.py```
 | ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to the directory of ```setup.py```
 | ```repoUrl``` | str | ```https://upload.pypi.org/legacy/``` | The repository (package index) to upload the package to.
-| ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the setup.py version will still be updated.
+| ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the package version will still be updated.
 
 ## Development
 
