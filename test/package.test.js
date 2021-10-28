@@ -36,6 +36,7 @@ test('test semantic-release-pypi', async() => {
         console.warn('skipped test semantic-release-pypi because TESTPYPI_TOKEN is not set')
         return
     }
+    process.env['PYPI_TOKEN'] = process.env['TESTPYPI_TOKEN']
 
     await verifyConditions(pluginConfig, context)
     await prepare(pluginConfig, context)
