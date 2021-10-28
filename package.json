@@ -22,6 +22,11 @@
     "form-data": "^3.0.0",
     "got": "^11.8.0"
   },
+  "files": [
+    "index.js",
+    "lib/*",
+    "requirements.txt"
+  ],
   "keywords": [
     "pypi",
     "python",
