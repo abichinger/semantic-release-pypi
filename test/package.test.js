@@ -47,8 +47,10 @@ test('test semantic-release-pypi', async() => {
 test('test semantic-release-pypi with pypiPublish unset', async() => {
     pluginConfig.pypiPublish = false
 
+    context.logger.log = jest.fn();
     await verifyConditions(pluginConfig, context)
     await prepare(pluginConfig, context)
     await publish(pluginConfig, context)
+    expect(context.logger.log).toHaveBeenCalledWith('Not publishing package due to requested configuration');
 
 }, 30000)
