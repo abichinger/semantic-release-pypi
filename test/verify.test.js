@@ -3,26 +3,12 @@ const path = require('path')
 const fs = require('fs-extra')
 const { genPackage } = require('./util')
 
-
 const setupPy = '.tmp/verify/setup.py'
-const setupPyWithVersion = '.tmp/verify2/setup.py'
 let packageName = 'semantic-release-pypi-verify-test'
-
-let setupPyContent = `
-from setuptools import setup
-setup(version='1.0.0', description="test")
-`
-
-beforeAll(async () => {
-    await genPackage(setupPy, packageName)
-    await genPackage(setupPyWithVersion, packageName, setupPyContent)
-})
 
 afterAll(async () => {
     fs.removeSync(path.dirname(setupPy))
-    fs.removeSync(path.dirname(setupPyWithVersion))
 })
-
 
 test('test assertEnvVar', async() => {
     expect(assertEnvVar('PATH')).toBe(undefined)
@@ -43,8 +29,24 @@ test('test assertPackage', async() => {
 })
 
 test('test verifySetupPy', async() => {
-    await expect(verifySetupPy(setupPy)).resolves.toBe(undefined)
-    await expect(verifySetupPy(setupPyWithVersion)).rejects.toThrow()
+
+    let testfn = async (setupPyContent, resolves) => {
+
+        await genPackage(setupPy, packageName, setupPyContent)
+        let promise = verifySetupPy(setupPy)
+
+        if(resolves === false){
+            return expect(promise).rejects.toThrow()
+        }
+        else {
+            return expect(promise).resolves.toBe(undefined)
+        }
+    }
+
+    await testfn(`from setuptools import setup\nsetup()`, true)
+    await testfn(`from setuptools import setup\nsetup(version='1.0.0', description="test")`, false)
+    await testfn(`# under the terms of the GNU General Public License version 3, or`, true)
+    await testfn(`from setuptools import setup\nv='1.0.0'\nsetup(version=v, description="test")`, false)
 })
 
 test('test verifyAuth', async() => {
