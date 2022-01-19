@@ -1,34 +1,11 @@
 const { verifyConditions, prepare, publish } = require('../index')
-const { genPackage } = require('./util')
+const { genPluginArgs, hasPackage } = require('./util')
 const fs = require('fs-extra')
-const path = require('path')
-const { v4: uuidv4 } = require('uuid')
 
-let setupPy = '.tmp/package/setup.py'
-let setupPyDir = path.dirname(setupPy)
-
-let packageName = 'semantic-release-pypi-integration-test-'+uuidv4()
-
-let pluginConfig = {
-    setupPy: setupPy,
-    repoUrl: 'https://test.pypi.org/legacy/'
-}
-
-let context = {
-    nextRelease: {
-        version: '1.2.3'
-    },
-    logger: {log: (m) => {process.stdout.write(m + '\n');}},
-    stdout: process.stdout,
-    stderr: process.stderr
-}
-
-beforeAll(async () => {
-    await genPackage(setupPy, packageName)
-})
+const packageDir = '.tmp/package'
 
 afterAll(async () => {
-    fs.removeSync(setupPyDir)
+    fs.removeSync(packageDir)
 })
 
 test('test semantic-release-pypi', async() => {
@@ -38,19 +15,24 @@ test('test semantic-release-pypi', async() => {
     }
     process.env['PYPI_TOKEN'] = process.env['TESTPYPI_TOKEN']
 
-    await verifyConditions(pluginConfig, context)
-    await prepare(pluginConfig, context)
-    await publish(pluginConfig, context)
+    let {config, context, packageName} = await genPluginArgs(packageDir + '/default/setup.py')
+
+    await verifyConditions(config, context)
+    await prepare(config, context)
+    await publish(config, context)
+    
+    let res = await hasPackage('https://test.pypi.org', packageName, context.nextRelease.version)
+    expect(res).toBe(true)
 
 }, 30000)
 
 test('test semantic-release-pypi with pypiPublish unset', async() => {
-    pluginConfig.pypiPublish = false
+    let {config, context} = await genPluginArgs(packageDir + '/private/setup.py', 'private')
+    config.pypiPublish = false
 
-    context.logger.log = jest.fn();
-    await verifyConditions(pluginConfig, context)
-    await prepare(pluginConfig, context)
-    await publish(pluginConfig, context)
+    await verifyConditions(config, context)
+    await prepare(config, context)
+    await publish(config, context)
     expect(context.logger.log).toHaveBeenCalledWith('Not publishing package due to requested configuration');
 
 }, 30000)
