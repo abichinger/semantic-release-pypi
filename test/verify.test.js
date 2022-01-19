@@ -1,4 +1,4 @@
-const {verify, assertEnvVar, assertExitCode, assertPackage, verifySetupPy, verifyAuth} = require('../lib/verify')
+const {assertEnvVar, assertExitCode, assertPackage, verifySetupPy, verifyAuth} = require('../lib/verify')
 const path = require('path')
 const fs = require('fs-extra')
 const { genPackage } = require('./util')

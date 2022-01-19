@@ -1,0 +1,16 @@
+{
+    "env": {
+        "node": true,
+        "commonjs": true,
+        "jest": true
+    },
+    "extends": "eslint:recommended",
+    "plugins": ["jest"],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+    },
+    "globals": {
+    }
+}
