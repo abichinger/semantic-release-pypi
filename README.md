@@ -40,6 +40,8 @@ An example using Github Actions can be found in the repo [semantic-release-pypi-
 | ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to the directory of ```setup.py```
 | ```repoUrl``` | str | ```https://upload.pypi.org/legacy/``` | The repository (package index) to upload the package to.
 | ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the package version will still be updated.
+| ```gpgSign``` | bool | ```false``` | Whether to sign the package using GPG. A valid PGP key must already be installed and configured on the host.
+| ```gpgIdentity``` | str | ```null``` | When ```gpgSign``` is true, set the GPG identify to use when signing files. Leave empty to use the default identity.
 
 ## Development
 
