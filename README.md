@@ -19,7 +19,7 @@ semantic-release plugin to publish a python package to PyPI
 
 ## Usage
 
-The plugin can be configured in the [**semantic-release** configuration file](https://github.com/semantic-release/semantic-release/blob/master/docs/usage/configuration.md#configuration):
+The plugin can be configured in the [**semantic-release** configuration file](https://github.com/semantic-release/semantic-release/blob/master/docs/usage/configuration.md#configuration). Here is a minimal example:
 
 ```json
 {
@@ -30,7 +30,29 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
   ]
 }
 ```
-An example using Github Actions can be found in the repo [semantic-release-pypi-example](https://github.com/abichinger/semantic-release-pypi-example).
+
+Note that this plugin modifies `setup.cfg` to point to the newly released version. While the plugin 
+will work without any `setup.cfg` in the repository, if you want to save a hard-coded version in `setup.cfg`
+then you will want to commit the change using the `@semantic-release/git` plugin:
+
+```json
+{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "semantic-release-pypi",
+    [
+      "@semantic-release/git",
+      {
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
+          "assets": ["setup.cfg"]
+      }
+    ]
+  ]
+}
+```
+
+A full example using Github Actions can be found in the repo [semantic-release-pypi-example](https://github.com/abichinger/semantic-release-pypi-example).
 
 ## Options
 
