@@ -40,7 +40,7 @@ async function hasPackage(repoUrl, packageName, version){
  * @param {string} setupPy path of setup.py
  * @returns {{config: object, context: object, packageName: string}} 
  */
- async function genPluginArgs(setupPy, name='integration'){
+ async function genPluginArgs(setupPy, name='integration', channel=null){
     let packageName = `semantic-release-pypi-${name}-test-`+uuidv4()
 
     let config = {
@@ -50,7 +50,8 @@ async function hasPackage(repoUrl, packageName, version){
 
     let context = {
         nextRelease: {
-            version: '1.2.3'
+            version: '1.2.3',
+            channel,
         },
         logger: {
             log: jest.fn()
