@@ -1,5 +1,5 @@
 const { verifyConditions, prepare, publish } = require('../index')
-const { genPluginArgs, hasPackage } = require('./util')
+const { genPluginArgs, hasPackage, genPackage } = require('./util')
 const fs = require('fs-extra')
 
 const packageDir = '.tmp/package'
@@ -16,6 +16,7 @@ test('test semantic-release-pypi', async() => {
     process.env['PYPI_TOKEN'] = process.env['TESTPYPI_TOKEN']
 
     let {config, context, packageName} = await genPluginArgs(packageDir + '/default/setup.py')
+    await genPackage(config.setupPy, packageName)
 
     await verifyConditions(config, context)
     await prepare(config, context)
@@ -27,7 +28,8 @@ test('test semantic-release-pypi', async() => {
 }, 30000)
 
 test('test semantic-release-pypi with pypiPublish unset', async() => {
-    let {config, context} = await genPluginArgs(packageDir + '/private/setup.py', 'private')
+    let {config, context, packageName} = await genPluginArgs(packageDir + '/private/setup.py', 'private')
+    await genPackage(config.setupPy, packageName)
     config.pypiPublish = false
 
     await verifyConditions(config, context)

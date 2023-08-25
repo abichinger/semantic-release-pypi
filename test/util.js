@@ -59,8 +59,6 @@ async function hasPackage(repoUrl, packageName, version){
         stderr: process.stderr,
     }
 
-    await genPackage(setupPy, packageName)
-
     return {config, context, packageName}
 }
 

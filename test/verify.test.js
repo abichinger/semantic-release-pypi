@@ -1,7 +1,7 @@
-const {assertEnvVar, assertExitCode, assertPackage, verifySetupPy, verifyAuth} = require('../lib/verify')
+const {assertEnvVar, assertExitCode, assertPackage, verifySetupPy, verifyAuth, verify} = require('../lib/verify')
 const path = require('path')
 const fs = require('fs-extra')
-const { genPackage } = require('./util')
+const { genPackage, genPluginArgs } = require('./util')
 
 const setupPy = '.tmp/verify/setup.py'
 let packageName = 'semantic-release-pypi-verify-test'
@@ -28,7 +28,26 @@ test('test assertPackage', async() => {
     await expect(assertPackage('foo-bar-baz')).rejects.toThrow()
 })
 
-test('test verifySetupPy', async() => {
+describe('test verifySetupPy', () => {
+
+    let testCases = [
+        {
+            content: `from setuptools import setup\nsetup()`,
+            resolves: true,
+        },
+        {
+            content: `from setuptools import setup\nsetup(version='1.0.0', description="test")`,
+            resolves: false,
+        },
+        {
+            content: `# under the terms of the GNU General Public License version 3, or`,
+            resolves: true,
+        },
+        {
+            content: `from setuptools import setup\nv='1.0.0'\nsetup(version=v, description="test")`,
+            resolves: false,
+        },
+    ]
 
     let testfn = async (setupPyContent, resolves) => {
 
@@ -36,17 +55,18 @@ test('test verifySetupPy', async() => {
         let promise = verifySetupPy(setupPy)
 
         if(resolves === false){
-            return expect(promise).rejects.toThrow()
+            return expect(promise).rejects.toThrow("version in")
         }
         else {
             return expect(promise).resolves.toBe(undefined)
         }
     }
 
-    await testfn(`from setuptools import setup\nsetup()`, true)
-    await testfn(`from setuptools import setup\nsetup(version='1.0.0', description="test")`, false)
-    await testfn(`# under the terms of the GNU General Public License version 3, or`, true)
-    await testfn(`from setuptools import setup\nv='1.0.0'\nsetup(version=v, description="test")`, false)
+    for(let c of testCases) {
+        test(c.content, async() => {
+            await testfn(c.content, c.resolves)
+        })
+    }
 })
 
 test('test verifyAuth', async() => {
@@ -59,4 +79,12 @@ test('test verifyAuth', async() => {
     else {
         console.warn('skipped verifyAuth because TESTPYPI_TOKEN is not set')
     }
+})
+
+test('test without setup.py', async() => {
+    let {config, context} = await genPluginArgs('./does-not-exist/setup.py', 'unknown')
+    config.pypiPublish = false
+
+    let promise = verify(config, context)
+    return expect(promise).rejects.toThrow('setup.py not found')
 })
