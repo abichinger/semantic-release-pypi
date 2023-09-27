@@ -1,13 +1,27 @@
-# semantic-release-pypi
-semantic-release plugin to publish a python package to PyPI
+# 📦🐍 semantic-release-pypi
+[semantic-release](https://semantic-release.gitbook.io/semantic-release/) plugin to publish a python package to PyPI
+
+<a href="https://www.npmjs.com/package/semantic-release-pypi">
+  <img alt="npm latest version" src="https://img.shields.io/npm/v/semantic-release-pypi">
+</a>
+<a href="https://github.com/abichinger/semantic-release-pypi/actions?query=workflow%3ATest+branch%3Amain">
+  <img alt="Build states" src="https://github.com/abichinger/semantic-release-pypi/workflows/Test/badge.svg">
+</a>
+
+## Requirements
+
+- [Node.js](https://semantic-release.gitbook.io/semantic-release/support/node-version) >= 18.0.0
+- Python 3
+- setuptools - other packaging tools like Poetry or Hatch are not supported
+- `version` must **not be set** inside `setup.py`
+
+## Steps
 
 | Step | Description
 | ---- | -----------
 | ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>verify that `version` is not set inside `setup.py` (**version will be set in `setup.cfg`**)</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
 | ```prepare``` | Update the version in ```setup.cfg``` and create the distribution packages
 | ```publish``` | Publish the python package to the specified repository (default: pypi)
-
-# Configuration
 
 ## Environment variables
 
@@ -79,5 +93,11 @@ source init.sh
 
 - Fork from this repository
 - Run `source init.sh`
+- Add your changes
 - Make sure your code passes all unit tests by running `yarn test`
+- Run `yarn lint` to ensure your code adheres to the linting rules
 - Issue a PR
+
+## Alternatives
+
+[Python Semantic Release](https://github.com/python-semantic-release/python-semantic-release)
