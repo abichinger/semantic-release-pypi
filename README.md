@@ -5,7 +5,7 @@
   <img alt="npm latest version" src="https://img.shields.io/npm/v/semantic-release-pypi">
 </a>
 <a href="https://github.com/abichinger/semantic-release-pypi/actions?query=workflow%3ATest+branch%3Amain">
-  <img alt="Build states" src="https://github.com/abichinger/semantic-release-pypi/workflows/Test/badge.svg">
+  <img alt="Build states" src="https://github.com/abichinger/semantic-release-pypi/actions/workflows/test.yml/badge.svg?branch=main">
 </a>
 
 ## Requirements
