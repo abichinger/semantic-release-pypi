@@ -4,23 +4,34 @@ const fs = require('fs-extra')
 const got = require('got')
 const { v4: uuidv4 } = require('uuid')
 
-const defaultContent = `
+const defaultSetupPy = `
 from setuptools import setup
 setup()
 `
 
-async function genPackage(setupPy, name, content=defaultContent){
+const defaultPyproject = `
+[project]
+name = "example_package"
+version = "0.0.1"
+`
 
-    let dir = path.dirname(setupPy)
+async function genPackage(buildFile, name="example_package", content=null){
+
+    let isLegacyInterface = path.basename(buildFile).startsWith("setup");
+    content = content ?? (isLegacyInterface ? defaultSetupPy : defaultPyproject);
+
+    let dir = path.dirname(buildFile)
     fs.mkdirSync(dir, {recursive: true})
-    fs.writeFileSync(setupPy, content)
+    fs.writeFileSync(buildFile, content)
 
-    let options = [
-        ['name', name],
-    ]
-
-    for(let [option, value] of options){
-        await setopt(setupPy, 'metadata', option, value)
+    if (isLegacyInterface) {
+        let options = [
+            ['name', name],
+        ]
+    
+        for(let [option, value] of options){
+            await setopt(buildFile, 'metadata', option, value)
+        }
     }
 }
 

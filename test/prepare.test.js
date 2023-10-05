@@ -6,7 +6,6 @@ const { genPackage } = require('./util')
 const version = '1.0.1'
 const setupPy = '.tmp/prepare/setup.py'
 const distDir = 'dist'
-let setupPyDir = path.dirname(setupPy)
 let packageName = 'semantic-release-pypi-prepare-test'
 
 beforeAll(async () => {
@@ -14,11 +13,42 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    fs.removeSync(setupPyDir)
+    fs.removeSync(".tmp/prepare")
 })
 
-test('test prepare functions', async() => {
-    await expect(setReleaseVersion(setupPy, version)).resolves.toBe(undefined)
-    await expect(sDistPackage(setupPy, distDir)).resolves.toBe(undefined)
-    await expect(bDistPackage(setupPy, distDir)).resolves.toBe(undefined)
+describe('prepare: build functions', () => {
+    
+
+    let testCases = [
+        {
+            name: "setup.py",
+            buildFile: '.tmp/prepare/setup-example/setup.py'
+        },
+        {
+            name: "pyproject.toml",
+            buildFile: '.tmp/prepare/setup-pyproject/pyproject.toml'
+        },
+    ]
+
+    for(let t of testCases) {
+        test(t.name, async() => {
+
+            let context = {
+                stdout: process.stdout,
+                stderr: process.stderr,
+            }
+
+            let srcDir = path.dirname(t.buildFile); 
+
+            await genPackage(t.buildFile)
+            await expect(sDistPackage(srcDir, distDir, context)).resolves.toBe(undefined)
+            await expect(bDistPackage(srcDir, distDir, context)).resolves.toBe(undefined)
+        }, 15000)
+    }
+    
+    
 })
+
+test('prepare: setReleaseVersion', async() => {
+    await expect(setReleaseVersion(setupPy, version)).resolves.toBe(undefined)
+});
