@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - beta
+      - next
+      - develop
   pull_request:
     branches:
       - main
