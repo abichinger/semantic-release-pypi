@@ -30,7 +30,7 @@
 | Step | Description
 | ---- | -----------
 | ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
-| ```prepare``` | Update the version in ```setup.cfg``` and create the distribution packages
+| ```prepare``` | Update the version in `pyproject.toml` (legacy: `setup.cfg`) and create the distribution packages
 | ```publish``` | Publish the python package to the specified repository (default: pypi)
 
 ## Environment variables
@@ -55,9 +55,8 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
 }
 ```
 
-Note that this plugin modifies `setup.cfg` to point to the newly released version. While the plugin 
-will work without any `setup.cfg` in the repository, if you want to save a hard-coded version in `setup.cfg`
-then you will want to commit the change using the `@semantic-release/git` plugin:
+Note that this plugin modifies the version inside of `pyproject.toml` (legacy: `setup.cfg`). 
+Make sure to commit `pyproject.toml` using the `@semantic-release/git` plugin, if you want to save the changes:
 
 ```json
 {
@@ -69,7 +68,8 @@ then you will want to commit the change using the `@semantic-release/git` plugin
       "@semantic-release/git",
       {
           "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
-          "assets": ["setup.cfg"]
+          "assets": ["pyproject.toml"]
+          // "assets": ["setup.cfg"]
       }
     ]
   ]
