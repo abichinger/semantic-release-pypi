@@ -1,0 +1,5 @@
+pip~=23.2
+build~=1.0
+setuptools~=68.2
+twine~=4.0
+tomlkit~=0.12

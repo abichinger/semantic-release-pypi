@@ -1,10 +1,13 @@
+import execa from 'execa';
 import {
   bDistPackage,
+  installPackages,
   sDistPackage,
   setVersionPy,
   setVersionToml,
 } from '../lib/prepare';
-import { genPackage } from './util';
+import { assertPackage } from '../lib/verify';
+import { genPackage, genPluginArgs } from './util';
 
 describe('prepare: build functions', () => {
   const testCases = [
@@ -47,8 +50,23 @@ test('prepare: setVersionPy', async () => {
 });
 
 test('prepare: setVersionToml', async () => {
-  const { config } = genPackage({
+  const { config, context } = genPackage({
     legacyInterface: false,
   });
-  await expect(setVersionToml(config.srcDir, '2.0.0')).resolves.toBe(undefined);
+  await expect(setVersionToml(config.srcDir, '2.0.0', context)).resolves.toBe(
+    undefined,
+  );
 });
+
+test('prepare: installPackages', async () => {
+  const { context } = genPluginArgs({});
+  const name = 'requests';
+
+  await execa('pip3', ['uninstall', '-y', name], {
+    stdout: process.stdout,
+    stderr: process.stderr,
+  });
+  await expect(assertPackage(name)).rejects.toThrow();
+  await installPackages([name], context);
+  await expect(assertPackage(name)).resolves.toBe(undefined);
+}, 30000);

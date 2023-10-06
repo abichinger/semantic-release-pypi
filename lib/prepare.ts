@@ -1,4 +1,5 @@
 import execa from 'execa';
+import fs from 'fs';
 import path from 'path';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
@@ -71,11 +72,33 @@ async function bDistPackage(
   }
 }
 
+async function installPackages(packages: string[], context?: Context) {
+  const cp = execa('pip3', ['install', ...packages]);
+
+  if (context) {
+    cp.stdout?.pipe(context.stdout, { end: false });
+    cp.stderr?.pipe(context.stderr, { end: false });
+  }
+
+  await cp;
+}
+
 async function prepare(pluginConfig: PluginConfig, context: Context) {
   const { logger, nextRelease } = context;
   const { srcDir, setupPath, distDir, pypiPublish } = new DefaultConfig(
     pluginConfig,
   );
+
+  const requirementsFile = path.resolve(__dirname, 'py/requirements.txt');
+  const requirements = fs
+    .readFileSync(requirementsFile, 'utf8')
+    .split('\n')
+    .filter((value) => value.length >= 0);
+
+  logger.log(
+    `Installing required python packages (${requirements.join(', ')})`,
+  );
+  installPackages(requirements, context);
 
   const version = await normalizeVersion(nextRelease.version);
 
@@ -94,4 +117,11 @@ async function prepare(pluginConfig: PluginConfig, context: Context) {
   }
 }
 
-export { bDistPackage, prepare, sDistPackage, setVersionPy, setVersionToml };
+export {
+  bDistPackage,
+  installPackages,
+  prepare,
+  sDistPackage,
+  setVersionPy,
+  setVersionToml,
+};

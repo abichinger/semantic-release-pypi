@@ -91,9 +91,6 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     pluginConfig,
   );
 
-  logger.log('Checking if build is installed');
-  await assertPackage('build');
-
   if (pypiPublish !== false) {
     const username = process.env['PYPI_USERNAME']
       ? process.env['PYPI_USERNAME']
@@ -102,9 +99,6 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     const repo = process.env['PYPI_REPO_URL'] ?? repoUrl;
 
     assertEnvVar('PYPI_TOKEN');
-
-    logger.log('Checking if twine is installed');
-    await assertPackage('twine');
 
     logger.log(`Verify authentication for ${username}@${repo}`);
     await verifyAuth(repo, username, token);
@@ -116,9 +110,6 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     if (!fs.existsSync(setupPath)) {
       throw Error(`setup.py not found, path: ${setupPath}`);
     }
-
-    logger.log('Checking if setuptools is installed');
-    await assertPackage('setuptools');
 
     logger.log('Verify that version is not set in setup.py');
     await verifySetupPy(setupPath, context);

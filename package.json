@@ -32,7 +32,7 @@
     "test": "jest",
     "lint": "eslint lib/*.ts test/*.ts",
     "clean": "rimraf dist/ && rimraf .tmp/",
-    "copy": "copyfiles -u 1 lib/py/*.py dist"
+    "copy": "copyfiles -u 1 lib/py/* dist"
   },
   "dependencies": {
     "execa": "^4.1.0",
