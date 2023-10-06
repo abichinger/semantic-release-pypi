@@ -16,11 +16,18 @@ function assertEnvVar(name: string) {
 async function assertExitCode(
   executable: string,
   args: string[] = [],
+  options?: execa.Options,
   exitCode = 0,
+  context?: Context,
 ) {
   let res: ExecaReturnBase<string>;
   try {
-    res = await execa(executable, args);
+    const cp = execa(executable, args, options);
+    if (context) {
+      cp.stdout?.pipe(context.stdout, { end: false });
+      cp.stderr?.pipe(context.stderr, { end: false });
+    }
+    res = await cp;
   } catch (err) {
     res = err as ExecaReturnBase<string>;
   }
@@ -33,22 +40,20 @@ async function assertExitCode(
 
 async function assertPackage(name: string) {
   try {
-    await assertExitCode('pip3', ['show', name], 0);
+    await assertExitCode('pip3', ['show', name]);
   } catch (err) {
     throw Error(`Package ${name} is not installed`);
   }
 }
 
-async function verifySetupPy(setupPy: string) {
-  try {
-    await execa(
-      'python3',
-      [path.resolve(__dirname, 'verifySetup.py'), path.basename(setupPy)],
-      { cwd: path.dirname(setupPy) },
-    );
-  } catch (err: any) {
-    throw Error(err.stderr ?? err);
-  }
+async function verifySetupPy(setupPy: string, context?: Context) {
+  await assertExitCode(
+    'python3',
+    [path.resolve(__dirname, 'py/verify_setup.py'), path.basename(setupPy)],
+    { cwd: path.dirname(setupPy) },
+    0,
+    context,
+  );
 }
 
 async function verifyAuth(repoUrl: string, username: string, token: string) {
@@ -72,8 +77,19 @@ async function verifyAuth(repoUrl: string, username: string, token: string) {
   }
 }
 
-async function verify(pluginConfig: PluginConfig, { logger }: Context) {
-  const { setupPy, pypiPublish, repoUrl } = new DefaultConfig(pluginConfig);
+function isLegacyBuildInterface(srcDir: string): boolean {
+  const pyprojectPath = path.join(srcDir, 'pyproject.toml');
+  if (!fs.existsSync(pyprojectPath)) {
+    return true;
+  }
+  return !fs.statSync(pyprojectPath).isFile;
+}
+
+async function verify(pluginConfig: PluginConfig, context: Context) {
+  const { logger } = context;
+  const { srcDir, setupPath, pypiPublish, repoUrl } = new DefaultConfig(
+    pluginConfig,
+  );
 
   logger.log('Checking if build is installed');
   await assertPackage('build');
@@ -94,18 +110,26 @@ async function verify(pluginConfig: PluginConfig, { logger }: Context) {
     await verifyAuth(repo, username, token);
   }
 
-  if (!fs.existsSync(setupPy)) {
-    throw Error(`setup.py not found, path: ${setupPy}`);
-  }
+  if (isLegacyBuildInterface(srcDir)) {
+    logger.log('pyproject.toml not found, using legacy interface (setup.py)');
 
-  logger.log('Verify that version is not set in setup.py');
-  await verifySetupPy(setupPy);
+    if (!fs.existsSync(setupPath)) {
+      throw Error(`setup.py not found, path: ${setupPath}`);
+    }
+
+    logger.log('Checking if setuptools is installed');
+    await assertPackage('setuptools');
+
+    logger.log('Verify that version is not set in setup.py');
+    await verifySetupPy(setupPath, context);
+  }
 }
 
 export {
   assertEnvVar,
   assertExitCode,
   assertPackage,
+  isLegacyBuildInterface,
   verify,
   verifyAuth,
   verifySetupPy,

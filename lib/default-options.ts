@@ -1,3 +1,4 @@
+import path from 'path';
 import { PluginConfig } from './types';
 
 export class DefaultConfig {
@@ -7,8 +8,16 @@ export class DefaultConfig {
     this.config = config;
   }
 
-  public get setupPy() {
-    return this.config.setupPy ?? './setup.py';
+  public get srcDir() {
+    return this.config.srcDir ?? '.';
+  }
+
+  public get setupPath(): string {
+    return path.join(this.srcDir, 'setup.py');
+  }
+
+  public get pyprojectPath(): string {
+    return path.join(this.srcDir, 'pyproject.toml');
   }
 
   public get distDir() {

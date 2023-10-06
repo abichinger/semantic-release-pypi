@@ -11,15 +11,25 @@
 ## Requirements
 
 - [Node.js](https://semantic-release.gitbook.io/semantic-release/support/node-version) >= 18.0.0
-- Python 3
-- setuptools - other packaging tools like Poetry or Hatch are not supported
-- `version` must **not be set** inside `setup.py`
+- Python >= 3.8
+
+**Supported Build System Interfaces**
+- `pyproject.toml` based (Recommended)
+  - `version` will be set inside `pyproject.toml` - [PEP 621](https://peps.python.org/pep-0621/)
+  - The build backend can be specified inside `pyproject.toml` (defaults to `setuptools`) - [PEP 518](https://peps.python.org/pep-0518/)
+
+<br />
+
+- `setup.py` based (Legacy interface)
+  - `setuptools` is required, other packaging tools like Poetry or Hatch are not supported by this `plugin`
+  - `version` will be set inside `setup.cfg`
+  - `version` must **not be set** inside `setup.py`
 
 ## Steps
 
 | Step | Description
 | ---- | -----------
-| ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>verify that `version` is not set inside `setup.py` (**version will be set in `setup.cfg`**)</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
+| ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
 | ```prepare``` | Update the version in ```setup.cfg``` and create the distribution packages
 | ```publish``` | Publish the python package to the specified repository (default: pypi)
 
@@ -72,7 +82,7 @@ A full example using Github Actions can be found in the repo [semantic-release-p
 
 | Option | Type | Default | Description
 | ------ | ---- | ------- | -----------
-| ```setupPy``` | str | ```./setup.py``` | location of ```setup.py```
+| ```srcDir``` | str | ```.``` | source directory (defaults to current directory)
 | ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to the directory of ```setup.py```
 | ```repoUrl``` | str | ```https://upload.pypi.org/legacy/``` | The repository (package index) to upload the package to.
 | ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the package version will still be updated.

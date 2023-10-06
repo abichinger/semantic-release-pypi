@@ -1,5 +1,5 @@
 export interface PluginConfig {
-  setupPy?: string;
+  srcDir?: string;
   distDir?: string;
   repoUrl?: string;
   pypiPublish?: boolean;

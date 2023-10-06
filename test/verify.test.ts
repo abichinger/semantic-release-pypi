@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import {
   assertEnvVar,
   assertExitCode,
@@ -10,26 +8,21 @@ import {
 } from '../lib/verify';
 import { genPackage, genPluginArgs } from './util';
 
-const setupPy = '.tmp/verify/setup.py';
-const packageName = 'semantic-release-pypi-verify-test';
-
-afterAll(async () => {
-  fs.rmSync(path.dirname(setupPy), { recursive: true, force: true });
-});
-
 test('test assertEnvVar', async () => {
   expect(assertEnvVar('PATH')).toBe(undefined);
   expect(() => assertEnvVar('FOO_BAZ_BAR')).toThrow();
 });
 
 test('test assertExitCode', async () => {
-  await expect(assertExitCode('node', ['--version'], 0)).resolves.toBe(
+  await expect(assertExitCode('node', ['--version'], {}, 0)).resolves.toBe(
     undefined,
   );
-  await expect(assertExitCode('node', ['--version'], 1)).rejects.toThrow();
+  await expect(assertExitCode('node', ['--version'], {}, 1)).rejects.toThrow();
 
-  await expect(assertExitCode('node', ['--ver'], 9)).resolves.toBe(undefined);
-  await expect(assertExitCode('node', ['--ver'], 0)).rejects.toThrow();
+  await expect(assertExitCode('node', ['--ver'], {}, 9)).resolves.toBe(
+    undefined,
+  );
+  await expect(assertExitCode('node', ['--ver'], {}, 0)).rejects.toThrow();
 });
 
 test('test assertPackage', async () => {
@@ -58,11 +51,14 @@ describe('test verifySetupPy', () => {
   ];
 
   const testfn = async (setupPyContent: string, resolves: boolean) => {
-    await genPackage(setupPy, packageName, setupPyContent);
-    const promise = verifySetupPy(setupPy);
+    const { config } = await genPackage({
+      legacyInterface: true,
+      content: setupPyContent,
+    });
+    const promise = verifySetupPy(config.setupPath);
 
     if (resolves === false) {
-      return expect(promise).rejects.toThrow('version in');
+      return expect(promise).rejects.toThrow();
     } else {
       return expect(promise).resolves.toBe(undefined);
     }
@@ -89,11 +85,10 @@ test('test verifyAuth', async () => {
 });
 
 test('test without setup.py', async () => {
-  const { config, context } = await genPluginArgs(
-    './does-not-exist/setup.py',
-    'unknown',
-  );
-  config.pypiPublish = false;
+  const { config, context } = await genPluginArgs({
+    srcDir: 'does-not-exist',
+    pypiPublish: false,
+  });
 
   const promise = verify(config, context);
   return expect(promise).rejects.toThrow('setup.py not found');

@@ -31,8 +31,8 @@
     "build": "yarn clean && tsc --project tsconfig.build.json && yarn copy",
     "test": "jest",
     "lint": "eslint lib/*.ts test/*.ts",
-    "clean": "rimraf dist/",
-    "copy": "copyfiles -u 1 lib/verifySetup.py dist"
+    "clean": "rimraf dist/ && rimraf .tmp/",
+    "copy": "copyfiles -u 1 lib/py/*.py dist"
   },
   "dependencies": {
     "execa": "^4.1.0",

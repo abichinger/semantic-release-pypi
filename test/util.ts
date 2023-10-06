@@ -3,35 +3,65 @@ import got from 'got';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../lib/@types/semantic-release';
+import { DefaultConfig } from '../lib/default-options';
 import { PluginConfig } from '../lib/types';
-import { setopt } from '../lib/util';
 
-const defaultSetupPy = `
-from setuptools import setup
-setup()
-`;
+class BuildInterface {
+  name: string;
+  version: string;
 
-const defaultPyproject = `
+  constructor(name: string = 'example_package', version: string = '0.0.1') {
+    this.name = name;
+    this.version = version;
+  }
+
+  public toString(useLegacy: boolean): string {
+    return useLegacy ? this.setup : this.pyproject;
+  }
+
+  get pyproject() {
+    return `
 [project]
-name = "example_package"
-version = "0.0.1"
+name = "${this.name}"
+version = "${this.version}"
 `;
+  }
 
-async function genPackage(buildFile: string, name?: string, content?: string) {
-  const isLegacyInterface = path.basename(buildFile).startsWith('setup');
-  content = content ?? (isLegacyInterface ? defaultSetupPy : defaultPyproject);
+  get setup() {
+    return `
+from setuptools import setup
+setup(
+  name='${this.name}',
+)
+`;
+  }
+}
+
+interface PackageOptions {
+  legacyInterface?: boolean;
+  config?: PluginConfig;
+  content?: string;
+  version?: string;
+}
+
+function genPackage(options: PackageOptions) {
+  const args = genPluginArgs(options.config ?? {});
+  const { config, packageName } = args;
+  const buildFile = options.legacyInterface
+    ? config.setupPath
+    : config.pyprojectPath;
+
+  const content =
+    options.content ??
+    new BuildInterface(packageName, options.version).toString(
+      options.legacyInterface ?? false,
+    );
 
   const dir = path.dirname(buildFile);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(buildFile, content);
 
-  if (isLegacyInterface) {
-    const options = [['name', name ?? 'example_package']];
-
-    for (const [option, value] of options) {
-      await setopt(buildFile, 'metadata', option, value);
-    }
-  }
+  return args;
 }
 
 async function hasPackage(
@@ -53,13 +83,14 @@ async function hasPackage(
  * @param {string} setupPy path of setup.py
  * @returns {{config: object, context: object, packageName: string}}
  */
-function genPluginArgs(setupPy: string, name = 'integration') {
-  const packageName = `semantic-release-pypi-${name}-test-` + uuidv4();
+function genPluginArgs(config: PluginConfig) {
+  const packageName = `semantic-release-pypi-test-` + uuidv4();
 
-  const config: PluginConfig = {
-    setupPy: setupPy,
-    repoUrl: 'https://test.pypi.org/legacy/',
-    pypiPublish: true,
+  const pluginConfig: PluginConfig = {
+    srcDir: config.srcDir ?? `.tmp/${packageName}`,
+    distDir: config.distDir ?? `.tmp/${packageName}/dist`,
+    repoUrl: config.repoUrl ?? 'https://test.pypi.org/legacy/',
+    pypiPublish: config.pypiPublish,
   };
 
   const context: Context = {
@@ -137,7 +168,12 @@ function genPluginArgs(setupPy: string, name = 'integration') {
     stderr: process.stderr,
   };
 
-  return { config, context, packageName };
+  return {
+    config: new DefaultConfig(pluginConfig),
+    pluginConfig,
+    context,
+    packageName,
+  };
 }
 
-export { genPackage, genPluginArgs, hasPackage };
+export { BuildInterface, genPackage, genPluginArgs, hasPackage };

@@ -1,11 +1,10 @@
 import execa from 'execa';
-import path from 'path';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
 
 function publishPackage(
-  setupPy: string,
+  srcDir: string,
   distDir: string,
   repoUrl: string,
   gpgSign: boolean,
@@ -28,7 +27,7 @@ function publishPackage(
       `${distDir}/*`,
     ].filter((arg) => arg !== null),
     {
-      cwd: path.dirname(setupPy),
+      cwd: srcDir,
       env: {
         TWINE_USERNAME: process.env['PYPI_USERNAME']
           ? process.env['PYPI_USERNAME']
@@ -43,13 +42,13 @@ async function publish(
   pluginConfig: PluginConfig,
   { logger, stdout, stderr }: Context,
 ) {
-  const { setupPy, distDir, pypiPublish, gpgSign, gpgIdentity, repoUrl } =
+  const { srcDir, distDir, pypiPublish, gpgSign, gpgIdentity, repoUrl } =
     new DefaultConfig(pluginConfig);
 
   if (pypiPublish !== false) {
     logger.log(`Publishing package to ${repoUrl}`);
     const result = publishPackage(
-      setupPy,
+      srcDir,
       distDir,
       process.env['PYPI_REPO_URL'] ?? repoUrl,
       gpgSign,

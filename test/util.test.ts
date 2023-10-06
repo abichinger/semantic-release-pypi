@@ -3,7 +3,8 @@ import { normalizeVersion } from '../lib/util';
 
 test('test DefaultConfig', async () => {
   expect(new DefaultConfig({}).distDir).toBe('dist');
-  expect(new DefaultConfig({}).setupPy).toBe('./setup.py');
+  expect(new DefaultConfig({}).srcDir).toBe('.');
+  expect(new DefaultConfig({}).setupPath).toBe('setup.py');
   expect(new DefaultConfig({}).repoUrl).toBe('https://upload.pypi.org/legacy/');
   expect(new DefaultConfig({ distDir: 'mydist' }).distDir).toBe('mydist');
 });
