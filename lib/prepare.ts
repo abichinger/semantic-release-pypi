@@ -98,7 +98,7 @@ async function prepare(pluginConfig: PluginConfig, context: Context) {
   logger.log(
     `Installing required python packages (${requirements.join(', ')})`,
   );
-  installPackages(requirements, context);
+  await installPackages(requirements, context);
 
   const version = await normalizeVersion(nextRelease.version);
 
