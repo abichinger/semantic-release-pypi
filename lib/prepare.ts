@@ -109,12 +109,10 @@ async function prepare(pluginConfig: PluginConfig, context: Context) {
     await setVersionToml(srcDir, version, context);
   }
 
-  if (pypiPublish !== false) {
-    logger.log(`Build source archive`);
-    await sDistPackage(srcDir, distDir, context);
-    logger.log(`Build wheel`);
-    await bDistPackage(srcDir, distDir, context);
-  }
+  logger.log(`Build source archive`);
+  await sDistPackage(srcDir, distDir, context);
+  logger.log(`Build wheel`);
+  await bDistPackage(srcDir, distDir, context);
 }
 
 export {
