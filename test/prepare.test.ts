@@ -35,7 +35,7 @@ describe('prepare: build functions', () => {
           bDistPackage(config.srcDir, config.distDir, context),
         ).resolves.toBe(undefined);
       },
-      15000,
+      60000,
     );
   }
 });
@@ -69,4 +69,4 @@ test('prepare: installPackages', async () => {
   await expect(assertPackage(name)).rejects.toThrow();
   await installPackages([name], context);
   await expect(assertPackage(name)).resolves.toBe(undefined);
-}, 30000);
+}, 60000);

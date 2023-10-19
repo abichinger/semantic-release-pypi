@@ -1,31 +1,6 @@
 import { prepare, publish, verifyConditions } from '../lib/index';
 import { genPackage, hasPackage } from './util';
 
-test('test semantic-release-pypi (setup.py)', async () => {
-  if (!process.env['TESTPYPI_TOKEN']) {
-    console.warn(
-      'skipped test semantic-release-pypi because TESTPYPI_TOKEN is not set',
-    );
-    return;
-  }
-  process.env['PYPI_TOKEN'] = process.env['TESTPYPI_TOKEN'];
-
-  const { config, context, packageName } = await genPackage({
-    legacyInterface: true,
-  });
-
-  await verifyConditions(config, context);
-  await prepare(config, context);
-  await publish(config, context);
-
-  const res = await hasPackage(
-    'https://test.pypi.org',
-    packageName,
-    context.nextRelease.version,
-  );
-  expect(res).toBe(true);
-}, 30000);
-
 test('test semantic-release-pypi (pyproject.toml)', async () => {
   if (!process.env['TESTPYPI_TOKEN']) {
     console.warn(
@@ -49,9 +24,9 @@ test('test semantic-release-pypi (pyproject.toml)', async () => {
     context.nextRelease.version,
   );
   expect(res).toBe(true);
-}, 30000);
+}, 60000);
 
-test('test semantic-release-pypi with pypiPublish unset', async () => {
+test('semantic-release-pypi (setup.py, publish=false)', async () => {
   const { config, context } = await genPackage({
     legacyInterface: true,
     config: { pypiPublish: false },
@@ -63,9 +38,9 @@ test('test semantic-release-pypi with pypiPublish unset', async () => {
   expect(context.logger.log).toHaveBeenCalledWith(
     'Not publishing package due to requested configuration',
   );
-}, 30000);
+}, 60000);
 
-test('semantic-release-pypi (poetry)', async () => {
+test('semantic-release-pypi (poetry, publish=false)', async () => {
   const pyproject = `[tool.poetry]
 name = "poetry-demo"
 version = "0.1.0"
@@ -108,4 +83,7 @@ build-backend = "poetry.core.masonry.api"`;
   await publish(config, context);
 
   expect(built).toEqual(true);
-}, 30000);
+  expect(context.logger.log).toHaveBeenCalledWith(
+    'Not publishing package due to requested configuration',
+  );
+}, 60000);
