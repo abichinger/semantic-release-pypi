@@ -85,9 +85,7 @@ async function installPackages(packages: string[], context?: Context) {
 
 async function prepare(pluginConfig: PluginConfig, context: Context) {
   const { logger, nextRelease } = context;
-  const { srcDir, setupPath, distDir, pypiPublish } = new DefaultConfig(
-    pluginConfig,
-  );
+  const { srcDir, setupPath, distDir } = new DefaultConfig(pluginConfig);
 
   const requirementsFile = path.resolve(__dirname, 'py/requirements.txt');
   const requirements = fs
