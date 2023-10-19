@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - beta
+      - next
+      - develop
   pull_request:
     branches:
       - main
@@ -15,10 +18,10 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-        python-version: [3.9.x, 3.10.x, 3.11.x]
+        python-version: [3.8.x, 3.11.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -28,11 +31,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Python packages
-      run: python -m pip install --upgrade setuptools wheel twine
+      run: pip3 install -r lib/py/requirements.txt
     - name: Install Node.js modules
       run: yarn install
     - name: Lint
       run: yarn lint
+    - name: Build
+      run: yarn build
     - name: Run tests
       env:
         TESTPYPI_TOKEN: ${{ secrets.TESTPYPI_TOKEN }}

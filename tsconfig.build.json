@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig",
+    "include": [
+        "lib/**/*",
+    ],
+    "compilerOptions": {
+      "sourceMap": true,
+      "rootDir": "lib"
+    },
+  }

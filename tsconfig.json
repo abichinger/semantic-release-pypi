@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "module": "NodeNext",
+        "target": "ESNext",
+        "moduleResolution": "NodeNext",
+        "esModuleInterop": true,
+        "declaration": true,
+        "strict": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "types": [
+            "node",
+            "jest",
+        ],
+        "allowJs": true,
+        "removeComments": false,
+        "noLib": false,
+        "skipLibCheck": true,
+        "exactOptionalPropertyTypes": false,
+        "noImplicitReturns": true,
+        "alwaysStrict": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": false,
+        "strictNullChecks": false,
+        "sourceMap": true,
+        "outDir": "dist",
+    },
+    "include": [
+        "lib/**/*",
+        "test/**/*.ts",
+    ],
+}

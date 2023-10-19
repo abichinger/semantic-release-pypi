@@ -8,19 +8,32 @@
   <img alt="Build states" src="https://github.com/abichinger/semantic-release-pypi/actions/workflows/test.yml/badge.svg?branch=main">
 </a>
 
-## Requirements
+## CI environment
 
 - [Node.js](https://semantic-release.gitbook.io/semantic-release/support/node-version) >= 18.0.0
-- Python 3
-- setuptools - other packaging tools like Poetry or Hatch are not supported
-- `version` must **not be set** inside `setup.py`
+- Python >= 3.8
+
+## Build System Interfaces
+
+`semantic-release-pypi` support two [build system interfaces](https://pip.pypa.io/en/stable/reference/build-system/#)
+
+- `pyproject.toml` based (Recommended)
+  - `version` will be set inside `pyproject.toml` - [PEP 621](https://peps.python.org/pep-0621/)
+  - The build backend can be specified inside `pyproject.toml` (defaults to `setuptools`) - [PEP 518](https://peps.python.org/pep-0518/)
+
+<br />
+
+- `setup.py` based (Legacy interface)
+  - `setuptools` is required, other packaging tools like Poetry or Hatch are not supported when using this interface
+  - `version` will be set inside `setup.cfg`
+  - `version` must **not be set** inside `setup.py`
 
 ## Steps
 
 | Step | Description
 | ---- | -----------
-| ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>verify that `version` is not set inside `setup.py` (**version will be set in `setup.cfg`**)</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
-| ```prepare``` | Update the version in ```setup.cfg``` and create the distribution packages
+| ```verifyConditions``` | <ul><li>verify the environment variable ```PYPI_TOKEN```</li><li>verify ```PYPI_TOKEN``` is authorized to publish on the specified repository</li><li>check if the packages `setuptools`, `wheel` and `twine` are installed</li></ul>
+| ```prepare``` | Update the version in `pyproject.toml` (legacy: `setup.cfg`) and create the distribution packages
 | ```publish``` | Publish the python package to the specified repository (default: pypi)
 
 ## Environment variables
@@ -45,9 +58,8 @@ The plugin can be configured in the [**semantic-release** configuration file](ht
 }
 ```
 
-Note that this plugin modifies `setup.cfg` to point to the newly released version. While the plugin 
-will work without any `setup.cfg` in the repository, if you want to save a hard-coded version in `setup.cfg`
-then you will want to commit the change using the `@semantic-release/git` plugin:
+Note that this plugin modifies the version inside of `pyproject.toml` (legacy: `setup.cfg`). 
+Make sure to commit `pyproject.toml` using the `@semantic-release/git` plugin, if you want to save the changes:
 
 ```json
 {
@@ -59,20 +71,22 @@ then you will want to commit the change using the `@semantic-release/git` plugin
       "@semantic-release/git",
       {
           "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
-          "assets": ["setup.cfg"]
+          "assets": ["pyproject.toml"]
       }
     ]
   ]
 }
 ```
 
-A full example using Github Actions can be found in the repo [semantic-release-pypi-example](https://github.com/abichinger/semantic-release-pypi-example).
+Working examples using Github Actions can be found here:
+- [semantic-release-pypi-pyproject](https://github.com/abichinger/semantic-release-pypi-pyproject)
+- [semantic-release-pypi-setup](https://github.com/abichinger/semantic-release-pypi-setup)
 
 ## Options
 
 | Option | Type | Default | Description
 | ------ | ---- | ------- | -----------
-| ```setupPy``` | str | ```./setup.py``` | location of ```setup.py```
+| ```srcDir``` | str | ```.``` | source directory (defaults to current directory)
 | ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to the directory of ```setup.py```
 | ```repoUrl``` | str | ```https://upload.pypi.org/legacy/``` | The repository (package index) to upload the package to.
 | ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the package version will still be updated.
