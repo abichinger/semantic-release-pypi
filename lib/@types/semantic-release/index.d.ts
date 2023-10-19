@@ -440,7 +440,7 @@ export interface Context {
    *
    * @default process.stdout
    */
-  stdout?: NodeJS.WriteStream | undefined;
+  stdout?: NodeJS.ReadWriteStream | undefined;
 
   /**
    * The writable stream used to log errors.
@@ -450,7 +450,7 @@ export interface Context {
    *
    * @default process.stderr
    */
-  stderr?: NodeJS.WriteStream | undefined;
+  stderr?: NodeJS.ReadWriteStream | undefined;
 
   /**
    * Environment variables.

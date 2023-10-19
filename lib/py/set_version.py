@@ -16,9 +16,13 @@ pyproject = file.read()
 file.close()
 
 # modifiy version (tomlkit will preserve comments)
-print(f'Set version to {args.version} ({pyproject_path})')
 toml = parse(pyproject)
-toml['project']['version'] = args.version
+if 'tool' in toml and 'poetry' in toml['tool']:
+    print(f'Poetry package detected')
+    toml['tool']['poetry']['version'] = args.version
+else:
+    toml['project']['version'] = args.version
+print(f'Set version to {args.version} ({pyproject_path})')
 pyproject = dumps(toml)
 
 # write file

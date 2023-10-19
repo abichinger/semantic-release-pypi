@@ -1,6 +1,7 @@
 import fs from 'fs';
 import got from 'got';
 import path from 'path';
+import { PassThrough } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../lib/@types/semantic-release';
 import { DefaultConfig } from '../lib/default-options';
@@ -37,11 +38,28 @@ setup(
   }
 }
 
+interface Filesystem {
+  [key: string]: Filesystem | string;
+}
+
+function genFiles(src: string, files: Filesystem) {
+  fs.mkdirSync(src, { recursive: true });
+
+  for (const [key, value] of Object.entries(files)) {
+    if (typeof value == 'string') {
+      fs.writeFileSync(path.join(src, key), value);
+    } else {
+      genFiles(path.join(src, key), value);
+    }
+  }
+}
+
 interface PackageOptions {
   legacyInterface?: boolean;
   config?: PluginConfig;
   content?: string;
   version?: string;
+  files?: Filesystem;
 }
 
 function genPackage(options: PackageOptions) {
@@ -60,6 +78,8 @@ function genPackage(options: PackageOptions) {
   const dir = path.dirname(buildFile);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(buildFile, content);
+
+  genFiles(config.srcDir, options.files);
 
   return args;
 }
@@ -164,9 +184,12 @@ function genPluginArgs(config: PluginConfig) {
         throw new Error('Function not implemented.');
       },
     },
-    stdout: process.stdout,
-    stderr: process.stderr,
+    stdout: new PassThrough(),
+    stderr: new PassThrough(),
   };
+
+  context.stdout?.pipe(process.stdout);
+  context.stderr?.pipe(process.stderr);
 
   return {
     config: new DefaultConfig(pluginConfig),
