@@ -79,7 +79,9 @@ function genPackage(options: PackageOptions) {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(buildFile, content);
 
-  genFiles(config.srcDir, options.files);
+  if (options.files) {
+    genFiles(config.srcDir, options.files);
+  }
 
   return args;
 }
