@@ -8,12 +8,15 @@
   <img alt="Build states" src="https://github.com/abichinger/semantic-release-pypi/workflows/Test/badge.svg">
 </a>
 
-## Requirements
+## CI environment
 
 - [Node.js](https://semantic-release.gitbook.io/semantic-release/support/node-version) >= 18.0.0
 - Python >= 3.8
 
-**Supported Build System Interfaces**
+## Build System Interfaces
+
+`semantic-release-pypi` support two [build system interfaces](https://pip.pypa.io/en/stable/reference/build-system/#)
+
 - `pyproject.toml` based (Recommended)
   - `version` will be set inside `pyproject.toml` - [PEP 621](https://peps.python.org/pep-0621/)
   - The build backend can be specified inside `pyproject.toml` (defaults to `setuptools`) - [PEP 518](https://peps.python.org/pep-0518/)
@@ -21,7 +24,7 @@
 <br />
 
 - `setup.py` based (Legacy interface)
-  - `setuptools` is required, other packaging tools like Poetry or Hatch are not supported by this `plugin`
+  - `setuptools` is required, other packaging tools like Poetry or Hatch are not supported when using this interface
   - `version` will be set inside `setup.cfg`
   - `version` must **not be set** inside `setup.py`
 
@@ -69,14 +72,15 @@ Make sure to commit `pyproject.toml` using the `@semantic-release/git` plugin, i
       {
           "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
           "assets": ["pyproject.toml"]
-          // "assets": ["setup.cfg"]
       }
     ]
   ]
 }
 ```
 
-A full example using Github Actions can be found in the repo [semantic-release-pypi-example](https://github.com/abichinger/semantic-release-pypi-example).
+Working examples using Github Actions can be found here:
+- [semantic-release-pypi-pyproject](https://github.com/abichinger/semantic-release-pypi-pyproject)
+- [semantic-release-pypi-setup](https://github.com/abichinger/semantic-release-pypi-setup)
 
 ## Options
 
