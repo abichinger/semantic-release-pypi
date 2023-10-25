@@ -20,7 +20,7 @@ toml = parse(pyproject)
 if 'tool' in toml and 'poetry' in toml['tool']:
     print(f'Poetry package detected')
     toml['tool']['poetry']['version'] = args.version
-else:
+elif 'project' in toml:
     toml['project']['version'] = args.version
 print(f'Set version to {args.version} ({pyproject_path})')
 pyproject = dumps(toml)
