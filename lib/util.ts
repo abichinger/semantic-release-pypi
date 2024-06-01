@@ -4,8 +4,7 @@ import path from 'path';
 async function normalizeVersion(version: string) {
   const { stdout } = await execa('python3', [
     '-c',
-    'import pkg_resources\n' +
-      `print(pkg_resources.packaging.version.Version('${version}'))`,
+    `from packaging.version import Version\nprint(Version('${version}'))`,
   ]);
   return stdout;
 }
