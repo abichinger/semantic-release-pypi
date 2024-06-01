@@ -3,3 +3,4 @@ build~=1.0
 setuptools~=68.2
 twine~=4.0
 tomlkit~=0.12
+packaging~=24.0
