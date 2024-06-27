@@ -1,6 +1,6 @@
 pip~=23.2
 build~=1.0
 setuptools~=68.2
-twine~=4.0
+twine>=5.1.1,<6
 tomlkit~=0.12
 packaging~=24.0
