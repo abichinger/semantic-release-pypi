@@ -4,12 +4,15 @@ on:
   push:
     branches: 
       - main
-      - next
       - beta
 
 jobs:
+  test:
+    name: Test
+    uses: ./.github/workflows/test.yml
   release:
     name: Release
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,9 +20,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: yarn install
       - name: Build
