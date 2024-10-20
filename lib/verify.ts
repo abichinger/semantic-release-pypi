@@ -1,4 +1,4 @@
-import execa, { ExecaReturnBase } from 'execa';
+import { execa, ExecaError, Result as ExecaResult, Options } from 'execa';
 import FormData from 'form-data';
 import fs from 'fs';
 import got from 'got';
@@ -6,6 +6,7 @@ import path from 'path';
 import { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
+import { pipe } from './util';
 
 function assertEnvVar(name: string) {
   if (!process.env[name]) {
@@ -16,20 +17,14 @@ function assertEnvVar(name: string) {
 async function assertExitCode(
   executable: string,
   args: string[] = [],
-  options?: execa.Options,
+  options?: Options,
   exitCode = 0,
-  context?: Context,
 ) {
-  let res: ExecaReturnBase<string>;
+  let res: ExecaError | ExecaResult;
   try {
-    const cp = execa(executable, args, options);
-    if (context) {
-      cp.stdout?.pipe(context.stdout, { end: false });
-      cp.stderr?.pipe(context.stderr, { end: false });
-    }
-    res = await cp;
+    res = await execa(executable, args, options);
   } catch (err) {
-    res = err as ExecaReturnBase<string>;
+    res = err as ExecaError;
   }
   if (res.exitCode != exitCode) {
     throw Error(
@@ -38,21 +33,20 @@ async function assertExitCode(
   }
 }
 
-async function assertPackage(name: string) {
+async function assertPackage(name: string, options?: Options) {
   try {
-    await assertExitCode('pip3', ['show', name]);
+    await assertExitCode('pip3', ['show', name], options);
   } catch (err) {
     throw Error(`Package ${name} is not installed`);
   }
 }
 
-async function verifySetupPy(setupPy: string, context?: Context) {
+async function verifySetupPy(setupPy: string, options?: Options) {
   await assertExitCode(
     'python3',
     [path.resolve(__dirname, 'py/verify_setup.py'), path.basename(setupPy)],
-    { cwd: path.dirname(setupPy) },
+    { ...options, cwd: path.dirname(setupPy) },
     0,
-    context,
   );
 }
 
@@ -91,6 +85,8 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     pluginConfig,
   );
 
+  const execaOptions: Options = pipe(context);
+
   if (pypiPublish !== false) {
     const username = process.env['PYPI_USERNAME']
       ? process.env['PYPI_USERNAME']
@@ -101,7 +97,7 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     assertEnvVar('PYPI_TOKEN');
 
     logger.log(`Verify authentication for ${username}@${repo}`);
-    await verifyAuth(repo, username, token);
+    await verifyAuth(repo, username, token!);
   }
 
   if (isLegacyBuildInterface(srcDir)) {
@@ -112,7 +108,7 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     }
 
     logger.log('Verify that version is not set in setup.py');
-    await verifySetupPy(setupPath, context);
+    await verifySetupPy(setupPath, execaOptions);
   }
 }
 

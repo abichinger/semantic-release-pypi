@@ -1,3 +1,4 @@
+import { PassThrough } from 'stream';
 import { prepare, publish, verifyConditions } from '../lib/index';
 import { genPackage, hasPackage } from './util';
 
@@ -21,7 +22,7 @@ test('test semantic-release-pypi (pyproject.toml)', async () => {
   const res = await hasPackage(
     'https://test.pypi.org',
     packageName,
-    context.nextRelease.version,
+    context.nextRelease?.version ?? 'undefined',
   );
   expect(res).toBe(true);
 }, 60000);
@@ -67,8 +68,10 @@ build-backend = "poetry.core.masonry.api"`;
     },
   });
 
+  context.stdout = [new PassThrough(), 'pipe'] as any;
+
   let built = false;
-  context.stdout.on('data', (bytes) => {
+  context.stdout?.on('data', (bytes) => {
     const str = bytes.toString('utf-8');
     if (
       str.includes('Successfully built') &&

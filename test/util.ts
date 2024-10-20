@@ -1,7 +1,6 @@
 import fs from 'fs';
 import got from 'got';
 import path from 'path';
-import { PassThrough } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../lib/@types/semantic-release';
 import { DefaultConfig } from '../lib/default-options';
@@ -186,12 +185,9 @@ function genPluginArgs(config: PluginConfig) {
         throw new Error('Function not implemented.');
       },
     },
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
+    // stdout: process.stdout,
+    // stderr: process.stderr,
   };
-
-  context.stdout?.pipe(process.stdout);
-  context.stderr?.pipe(process.stderr);
 
   return {
     config: new DefaultConfig(pluginConfig),

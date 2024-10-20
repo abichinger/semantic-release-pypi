@@ -37,6 +37,14 @@ export class DefaultConfig {
   }
 
   public get gpgIdentity() {
-    return this.config.gpgIdentity ?? null;
+    return this.config.gpgIdentity;
+  }
+
+  public get envDir() {
+    return this.config.envDir ?? '.venv';
+  }
+
+  public get installDeps() {
+    return this.config.installDeps ?? true;
   }
 }

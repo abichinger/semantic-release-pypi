@@ -92,6 +92,8 @@ Working examples using Github Actions can be found here:
 | ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the package version will still be updated.
 | ```gpgSign``` | bool | ```false``` | Whether to sign the package using GPG. A valid PGP key must already be installed and configured on the host.
 | ```gpgIdentity``` | str | ```null``` | When ```gpgSign``` is true, set the GPG identify to use when signing files. Leave empty to use the default identity.
+| ```envDir``` | string \| ```false``` | ```.venv``` | directory to create the virtual environment in, if set to `false` no environment will be created
+| ```installDeps``` | bool | ```true``` | wether to automatically install python dependencies
 
 ## Development
 

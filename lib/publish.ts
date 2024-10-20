@@ -1,15 +1,22 @@
-import execa from 'execa';
+import { execa, Options, ResultPromise } from 'execa';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
+import { pipe } from './util.js';
 
 function publishPackage(
   srcDir: string,
   distDir: string,
   repoUrl: string,
   gpgSign: boolean,
-  gpgIdentity: string,
-) {
+  gpgIdentity?: string,
+  options?: Options,
+): ResultPromise {
+  const signArgs = gpgSign ? ['--sign'] : [];
+  if (gpgIdentity) {
+    signArgs.push('--identity', gpgIdentity);
+  }
+
   return execa(
     'python3',
     [
@@ -21,14 +28,14 @@ function publishPackage(
       '--non-interactive',
       '--skip-existing',
       '--verbose',
-      gpgSign ? '--sign' : null,
-      gpgSign && gpgIdentity ? '--identity' : null,
-      gpgSign && gpgIdentity ? gpgIdentity : null,
+      ...signArgs,
       `${distDir}/*`,
     ].filter((arg) => arg !== null),
     {
+      ...options,
       cwd: srcDir,
       env: {
+        ...options?.env,
         TWINE_USERNAME: process.env['PYPI_USERNAME']
           ? process.env['PYPI_USERNAME']
           : '__token__',
@@ -38,10 +45,8 @@ function publishPackage(
   );
 }
 
-async function publish(
-  pluginConfig: PluginConfig,
-  { logger, stdout, stderr }: Context,
-) {
+async function publish(pluginConfig: PluginConfig, context: Context) {
+  const { logger } = context;
   const { srcDir, distDir, pypiPublish, gpgSign, gpgIdentity, repoUrl } =
     new DefaultConfig(pluginConfig);
 
@@ -53,9 +58,8 @@ async function publish(
       process.env['PYPI_REPO_URL'] ?? repoUrl,
       gpgSign,
       gpgIdentity,
+      pipe(context),
     );
-    result.stdout?.pipe(stdout, { end: false });
-    result.stderr?.pipe(stderr, { end: false });
     await result;
   } else {
     logger.log('Not publishing package due to requested configuration');

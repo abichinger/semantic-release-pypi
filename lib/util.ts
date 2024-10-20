@@ -1,11 +1,19 @@
-import execa from 'execa';
+import { execa, Options } from 'execa';
 import path from 'path';
+import { Context } from './@types/semantic-release';
 
-async function normalizeVersion(version: string) {
-  const { stdout } = await execa('python3', [
-    '-c',
-    `from packaging.version import Version\nprint(Version('${version}'))`,
-  ]);
+async function normalizeVersion(
+  version: string,
+  options: Options = {},
+): Promise<string> {
+  const { stdout } = await execa(
+    'python3',
+    [
+      '-c',
+      `from packaging.version import Version\nprint(Version('${version}'))`,
+    ],
+    options,
+  );
   return stdout;
 }
 
@@ -28,4 +36,11 @@ function setopt(
   );
 }
 
-export { normalizeVersion, setopt };
+function pipe(context: Context): Options {
+  return {
+    stdout: context.stdout,
+    stderr: context.stderr,
+  };
+}
+
+export { normalizeVersion, pipe, setopt };

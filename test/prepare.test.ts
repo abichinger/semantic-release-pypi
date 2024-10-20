@@ -1,13 +1,15 @@
-import execa from 'execa';
+import { execa } from 'execa';
 import {
   bDistPackage,
+  createVenv,
   installPackages,
   sDistPackage,
   setVersionPy,
   setVersionToml,
 } from '../lib/prepare';
+import { pipe } from '../lib/util';
 import { assertPackage } from '../lib/verify';
-import { genPackage, genPluginArgs } from './util';
+import { genPackage } from './util';
 
 describe('prepare: build functions', () => {
   const testCases = [
@@ -53,20 +55,41 @@ test('prepare: setVersionToml', async () => {
   const { config, context } = genPackage({
     legacyInterface: false,
   });
-  await expect(setVersionToml(config.srcDir, '2.0.0', context)).resolves.toBe(
-    undefined,
-  );
+  await expect(
+    setVersionToml(config.srcDir, '2.0.0', pipe(context)),
+  ).resolves.toBe(undefined);
 });
 
-test('prepare: installPackages', async () => {
-  const { context } = genPluginArgs({});
-  const name = 'requests';
+describe('prepare: installPackages', () => {
+  const tests = [
+    { name: 'system', opt: async () => ({}) },
+    {
+      name: 'virtual environment',
+      opt: async () => createVenv('.tmp/.testenv-1'),
+    },
+  ];
 
-  await execa('pip3', ['uninstall', '-y', name], {
-    stdout: process.stdout,
-    stderr: process.stderr,
-  });
-  await expect(assertPackage(name)).rejects.toThrow();
-  await installPackages([name], context);
-  await expect(assertPackage(name)).resolves.toBe(undefined);
-}, 60000);
+  for (const { name, opt } of tests) {
+    test(
+      name,
+      async () => {
+        const pkg = 'requests';
+        const options = await opt();
+
+        await execa('pip3', ['uninstall', '-y', pkg], {
+          ...options,
+        });
+        await expect(assertPackage(pkg, options)).rejects.toThrow();
+        await installPackages([pkg], options);
+        await expect(assertPackage(pkg, options)).resolves.toBe(undefined);
+      },
+      60000,
+    );
+  }
+});
+
+test('prepare: createVenv', async () => {
+  const options = await createVenv('.tmp/.testenv-2');
+  const pythonPath = await execa('which', ['python3'], options);
+  expect(pythonPath.stdout).toContain('.tmp/.testenv-2/bin/python3');
+});

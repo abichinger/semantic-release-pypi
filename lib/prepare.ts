@@ -1,10 +1,11 @@
-import execa from 'execa';
+import { execa, Options } from 'execa';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
-import { normalizeVersion, setopt } from './util';
+import { normalizeVersion, pipe, setopt } from './util';
 import { assertExitCode, isLegacyBuildInterface } from './verify';
 
 async function setVersionPy(setupPy: string, version: string) {
@@ -18,103 +19,113 @@ async function setVersionPy(setupPy: string, version: string) {
 async function setVersionToml(
   srcDir: string,
   version: string,
-  context?: Context,
+  options?: Options,
 ) {
   await assertExitCode(
     'python3',
     [path.resolve(__dirname, 'py/set_version.py'), '-v', version, srcDir],
-    {},
+    options,
     0,
-    context,
   );
 }
 
 async function sDistPackage(
   srcDir: string,
   distDir: string,
-  context?: Context,
+  options?: Options,
 ) {
-  const cp = execa('python3', ['-m', 'build', '--sdist', '--outdir', distDir], {
+  await execa('python3', ['-m', 'build', '--sdist', '--outdir', distDir], {
+    ...options,
     cwd: srcDir,
   });
-
-  if (context) {
-    cp.stdout?.pipe(context.stdout, { end: false });
-    cp.stderr?.pipe(context.stderr, { end: false });
-  }
-
-  await cp;
 }
 
 async function bDistPackage(
   srcDir: string,
   distDir: string,
-  context?: Context,
+  options?: Options,
 ) {
   try {
-    const cp = execa(
-      'python3',
-      ['-m', 'build', '--wheel', '--outdir', distDir],
-      {
-        cwd: srcDir,
-      },
-    );
-
-    if (context) {
-      cp.stdout?.pipe(context.stdout, { end: false });
-      cp.stderr?.pipe(context.stderr, { end: false });
-    }
-
-    await cp;
+    await execa('python3', ['-m', 'build', '--wheel', '--outdir', distDir], {
+      ...options,
+      cwd: srcDir,
+    });
   } catch (err) {
-    console.log(err);
     throw Error(`failed to build wheel`);
   }
 }
 
-async function installPackages(packages: string[], context?: Context) {
-  const cp = execa('pip3', ['install', ...packages]);
+async function installPackages(packages: string[], options?: Options) {
+  await execa('pip3', ['install', ...packages], options);
+}
 
-  if (context) {
-    cp.stdout?.pipe(context.stdout, { end: false });
-    cp.stderr?.pipe(context.stderr, { end: false });
+async function createVenv(envDir: string, options?: Options): Promise<Options> {
+  await execa('python3', ['-m', 'venv', envDir], options);
+  const envPath = path.resolve(envDir, 'bin');
+  if (os.platform() == 'win32') {
+    return {
+      ...options,
+      env: {
+        Path: envPath + ';' + process.env.Path,
+      },
+    };
   }
-
-  await cp;
+  return {
+    ...options,
+    env: {
+      PATH: envPath + ':' + process.env.PATH,
+    },
+  };
 }
 
 async function prepare(pluginConfig: PluginConfig, context: Context) {
   const { logger, nextRelease } = context;
-  const { srcDir, setupPath, distDir } = new DefaultConfig(pluginConfig);
-
-  const requirementsFile = path.resolve(__dirname, 'py/requirements.txt');
-  const requirements = fs
-    .readFileSync(requirementsFile, 'utf8')
-    .split('\n')
-    .filter((value) => value.length >= 0);
-
-  logger.log(
-    `Installing required python packages (${requirements.join(', ')})`,
+  const { srcDir, setupPath, distDir, envDir, installDeps } = new DefaultConfig(
+    pluginConfig,
   );
-  await installPackages(requirements, context);
 
-  const version = await normalizeVersion(nextRelease.version);
+  if (nextRelease === undefined) {
+    throw new Error('nextRelease is undefined');
+  }
+
+  let execaOptions: Options = pipe(context);
+
+  if (envDir) {
+    logger.log(`Creating virtual environment ${envDir}`);
+    execaOptions = await createVenv(envDir, execaOptions);
+  }
+
+  if (installDeps) {
+    const requirementsFile = path.resolve(__dirname, 'py/requirements.txt');
+    const requirements = fs
+      .readFileSync(requirementsFile, 'utf8')
+      .split('\n')
+      .filter((value) => value.length >= 0);
+
+    logger.log(
+      `Installing required python packages (${requirements.join(', ')})`,
+    );
+    await installPackages(requirements, execaOptions);
+  }
+
+  const version = await normalizeVersion(nextRelease.version, execaOptions);
 
   if (isLegacyBuildInterface(srcDir)) {
     logger.log(`Set version to ${version} (setup.cfg)`);
     await setVersionPy(setupPath, version);
   } else {
-    await setVersionToml(srcDir, version, context);
+    await setVersionToml(srcDir, version, execaOptions);
   }
 
   logger.log(`Build source archive`);
-  await sDistPackage(srcDir, distDir, context);
+  await sDistPackage(srcDir, distDir, execaOptions);
   logger.log(`Build wheel`);
-  await bDistPackage(srcDir, distDir, context);
+  await bDistPackage(srcDir, distDir, execaOptions);
 }
 
 export {
   bDistPackage,
+  createVenv,
   installPackages,
   prepare,
   sDistPackage,

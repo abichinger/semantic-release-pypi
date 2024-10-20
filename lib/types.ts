@@ -5,4 +5,6 @@ export interface PluginConfig {
   pypiPublish?: boolean;
   gpgSign?: boolean;
   gpgIdentity?: string;
+  envDir?: string | false;
+  installDeps?: boolean;
 }
