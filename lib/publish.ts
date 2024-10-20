@@ -1,6 +1,7 @@
 import { Options, ResultPromise } from 'execa';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
+import { createVenv } from './prepare';
 import { PluginConfig } from './types';
 import { pipe, spawn } from './util.js';
 
@@ -47,8 +48,20 @@ function publishPackage(
 
 async function publish(pluginConfig: PluginConfig, context: Context) {
   const { logger } = context;
-  const { srcDir, distDir, pypiPublish, gpgSign, gpgIdentity, repoUrl } =
-    new DefaultConfig(pluginConfig);
+  const {
+    srcDir,
+    distDir,
+    pypiPublish,
+    gpgSign,
+    gpgIdentity,
+    repoUrl,
+    envDir,
+  } = new DefaultConfig(pluginConfig);
+
+  let options = pipe(context);
+  if (envDir) {
+    options = await createVenv(envDir, options);
+  }
 
   if (pypiPublish !== false) {
     logger.log(`Publishing package to ${repoUrl}`);
@@ -58,7 +71,7 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
       process.env['PYPI_REPO_URL'] ?? repoUrl,
       gpgSign,
       gpgIdentity,
-      pipe(context),
+      options,
     );
     await result;
   } else {
