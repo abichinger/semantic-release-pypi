@@ -14,7 +14,7 @@ async function normalizeVersion(
     ],
     options,
   );
-  return stdout;
+  return stdout as unknown as string;
 }
 
 function setopt(
@@ -55,10 +55,10 @@ function spawn(
   });
 
   if (options?.stdout) {
-    cp.stdout?.pipe(options.stdout, { end: false });
+    (cp.stdout as any)?.pipe(options.stdout, { end: false });
   }
   if (options?.stderr) {
-    cp.stderr?.pipe(options.stderr, { end: false });
+    (cp.stderr as any)?.pipe(options.stderr, { end: false });
   }
 
   return cp;
