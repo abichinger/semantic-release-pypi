@@ -60,8 +60,10 @@ async function installPackages(packages: string[], options?: Options) {
 }
 
 async function createVenv(envDir: string, options?: Options): Promise<Options> {
-  await spawn('python3', ['-m', 'venv', envDir], options);
   const envPath = path.resolve(envDir, 'bin');
+  if (!fs.existsSync(envPath)) {
+    await spawn('python3', ['-m', 'venv', envDir], options);
+  }
   if (os.platform() == 'win32') {
     return {
       ...options,
