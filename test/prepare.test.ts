@@ -1,4 +1,4 @@
-import { execa } from 'execa';
+import { describe, expect, test } from 'vitest';
 import {
   bDistPackage,
   createVenv,
@@ -7,7 +7,7 @@ import {
   setVersionPy,
   setVersionToml,
 } from '../lib/prepare';
-import { pipe } from '../lib/util';
+import { pipe, spawn } from '../lib/util';
 import { assertPackage } from '../lib/verify';
 import { genPackage } from './util';
 
@@ -76,7 +76,7 @@ describe('prepare: installPackages', () => {
         const pkg = 'requests';
         const options = await opt();
 
-        await execa('pip3', ['uninstall', '-y', pkg], {
+        await spawn('pip3', ['uninstall', '-y', pkg], {
           ...options,
         });
         await expect(assertPackage(pkg, options)).rejects.toThrow();
@@ -90,6 +90,6 @@ describe('prepare: installPackages', () => {
 
 test('prepare: createVenv', async () => {
   const options = await createVenv('.tmp/.testenv-2');
-  const pythonPath = await execa('which', ['python3'], options);
+  const pythonPath = await spawn('which', ['python3'], options);
   expect(pythonPath.stdout).toContain('.tmp/.testenv-2/bin/python3');
 });

@@ -1,4 +1,4 @@
-import { execa, ExecaError, Result as ExecaResult, Options } from 'execa';
+import { ExecaError, Result as ExecaResult, Options } from 'execa';
 import FormData from 'form-data';
 import fs from 'fs';
 import got from 'got';
@@ -6,7 +6,7 @@ import path from 'path';
 import { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
-import { pipe } from './util';
+import { pipe, spawn } from './util';
 
 function assertEnvVar(name: string) {
   if (!process.env[name]) {
@@ -22,7 +22,7 @@ async function assertExitCode(
 ) {
   let res: ExecaError | ExecaResult;
   try {
-    res = await execa(executable, args, options);
+    res = await spawn(executable, args, options);
   } catch (err) {
     res = err as ExecaError;
   }

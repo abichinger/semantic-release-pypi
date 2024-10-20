@@ -2,10 +2,10 @@ import fs from 'fs';
 import got from 'got';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { vi } from 'vitest';
 import { Context } from '../lib/@types/semantic-release';
 import { DefaultConfig } from '../lib/default-options';
 import { PluginConfig } from '../lib/types';
-
 class BuildInterface {
   name: string;
   version: string;
@@ -110,6 +110,7 @@ function genPluginArgs(config: PluginConfig) {
   const pluginConfig: PluginConfig = {
     srcDir: config.srcDir ?? `.tmp/${packageName}`,
     distDir: config.distDir ?? `.tmp/${packageName}/dist`,
+    envDir: config.envDir ?? `.tmp/${packageName}/.venv`,
     repoUrl: config.repoUrl ?? 'https://test.pypi.org/legacy/',
     pypiPublish: config.pypiPublish,
   };
@@ -135,7 +136,7 @@ function genPluginArgs(config: PluginConfig) {
     },
     /* eslint-disable @typescript-eslint/no-unused-vars */
     logger: {
-      log: jest.fn(),
+      log: vi.fn(),
       await: function (...message: any[]): void {
         throw new Error('Function not implemented.');
       },
@@ -185,8 +186,6 @@ function genPluginArgs(config: PluginConfig) {
         throw new Error('Function not implemented.');
       },
     },
-    // stdout: process.stdout,
-    // stderr: process.stderr,
   };
 
   return {

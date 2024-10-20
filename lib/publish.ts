@@ -1,8 +1,8 @@
-import { execa, Options, ResultPromise } from 'execa';
+import { Options, ResultPromise } from 'execa';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
-import { pipe } from './util.js';
+import { pipe, spawn } from './util.js';
 
 function publishPackage(
   srcDir: string,
@@ -17,7 +17,7 @@ function publishPackage(
     signArgs.push('--identity', gpgIdentity);
   }
 
-  return execa(
+  return spawn(
     'python3',
     [
       '-m',

@@ -1,3 +1,4 @@
+import { expect, test } from 'vitest';
 import { DefaultConfig } from '../lib/default-options';
 import { normalizeVersion } from '../lib/util';
 

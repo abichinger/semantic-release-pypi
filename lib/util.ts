@@ -1,4 +1,4 @@
-import { execa, Options } from 'execa';
+import { execa, Options, ResultPromise } from 'execa';
 import path from 'path';
 import { Context } from './@types/semantic-release';
 
@@ -6,7 +6,7 @@ async function normalizeVersion(
   version: string,
   options: Options = {},
 ): Promise<string> {
-  const { stdout } = await execa(
+  const { stdout } = await spawn(
     'python3',
     [
       '-c',
@@ -23,7 +23,7 @@ function setopt(
   option: string,
   value: string,
 ) {
-  return execa(
+  return spawn(
     'python3',
     [
       path.basename(setupPy),
@@ -43,4 +43,25 @@ function pipe(context: Context): Options {
   };
 }
 
-export { normalizeVersion, pipe, setopt };
+function spawn(
+  file: string | URL,
+  args?: readonly string[],
+  options?: Options,
+): ResultPromise {
+  const cp = execa(file, args, {
+    ...options,
+    stdout: undefined,
+    stderr: undefined,
+  });
+
+  if (options?.stdout) {
+    cp.stdout?.pipe(options.stdout, { end: false });
+  }
+  if (options?.stderr) {
+    cp.stderr?.pipe(options.stderr, { end: false });
+  }
+
+  return cp;
+}
+
+export { normalizeVersion, pipe, setopt, spawn };

@@ -16,7 +16,6 @@
     "root": true,
     "plugins": [
         "@typescript-eslint/eslint-plugin",
-        "jest",
         "prettier"
     ],
     "rules": {

@@ -1,11 +1,11 @@
-import { execa, Options } from 'execa';
+import { Options } from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import type { Context } from './@types/semantic-release';
 import { DefaultConfig } from './default-options';
 import { PluginConfig } from './types';
-import { normalizeVersion, pipe, setopt } from './util';
+import { normalizeVersion, pipe, setopt, spawn } from './util';
 import { assertExitCode, isLegacyBuildInterface } from './verify';
 
 async function setVersionPy(setupPy: string, version: string) {
@@ -34,7 +34,7 @@ async function sDistPackage(
   distDir: string,
   options?: Options,
 ) {
-  await execa('python3', ['-m', 'build', '--sdist', '--outdir', distDir], {
+  await spawn('python3', ['-m', 'build', '--sdist', '--outdir', distDir], {
     ...options,
     cwd: srcDir,
   });
@@ -46,7 +46,7 @@ async function bDistPackage(
   options?: Options,
 ) {
   try {
-    await execa('python3', ['-m', 'build', '--wheel', '--outdir', distDir], {
+    await spawn('python3', ['-m', 'build', '--wheel', '--outdir', distDir], {
       ...options,
       cwd: srcDir,
     });
@@ -56,11 +56,11 @@ async function bDistPackage(
 }
 
 async function installPackages(packages: string[], options?: Options) {
-  await execa('pip3', ['install', ...packages], options);
+  await spawn('pip3', ['install', ...packages], options);
 }
 
 async function createVenv(envDir: string, options?: Options): Promise<Options> {
-  await execa('python3', ['-m', 'venv', envDir], options);
+  await spawn('python3', ['-m', 'venv', envDir], options);
   const envPath = path.resolve(envDir, 'bin');
   if (os.platform() == 'win32') {
     return {
