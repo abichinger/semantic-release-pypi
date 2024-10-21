@@ -6,8 +6,8 @@ import {
   verify,
   verifyAuth,
   verifySetupPy,
-} from '../lib/verify';
-import { genPackage, genPluginArgs } from './util';
+} from '../lib/verify.js';
+import { genPackage, genPluginArgs } from './util.js';
 
 test('test assertEnvVar', async () => {
   expect(assertEnvVar('PATH')).toBe(undefined);

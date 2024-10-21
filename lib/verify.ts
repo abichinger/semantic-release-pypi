@@ -3,10 +3,10 @@ import FormData from 'form-data';
 import fs from 'fs';
 import got from 'got';
 import path from 'path';
-import { Context } from './@types/semantic-release';
-import { DefaultConfig } from './default-options';
-import { PluginConfig } from './types';
-import { pipe, spawn } from './util';
+import { Context } from './@types/semantic-release/index.js';
+import { DefaultConfig } from './default-options.js';
+import { PluginConfig } from './types.js';
+import { pipe, spawn } from './util.js';
 
 function assertEnvVar(name: string) {
   if (!process.env[name]) {

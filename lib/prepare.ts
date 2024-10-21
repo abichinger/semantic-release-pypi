@@ -2,11 +2,11 @@ import { Options } from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type { Context } from './@types/semantic-release';
-import { DefaultConfig } from './default-options';
-import { PluginConfig } from './types';
-import { normalizeVersion, pipe, setopt, spawn } from './util';
-import { assertExitCode, isLegacyBuildInterface } from './verify';
+import type { Context } from './@types/semantic-release/index.js';
+import { DefaultConfig } from './default-options.js';
+import { PluginConfig } from './types.js';
+import { normalizeVersion, pipe, setopt, spawn } from './util.js';
+import { assertExitCode, isLegacyBuildInterface } from './verify.js';
 
 async function setVersionPy(setupPy: string, version: string) {
   try {

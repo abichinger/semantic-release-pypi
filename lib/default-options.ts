@@ -1,5 +1,5 @@
 import path from 'path';
-import { PluginConfig } from './types';
+import { PluginConfig } from './types.js';
 
 export class DefaultConfig {
   config: PluginConfig;

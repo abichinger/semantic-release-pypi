@@ -1,10 +1,12 @@
 import { PassThrough } from 'stream';
 import { expect, test } from 'vitest';
-import { prepare, publish, verifyConditions } from '../lib/index';
-import { genPackage, hasPackage } from './util';
+import { prepare, publish, verifyConditions } from '../lib/index.js';
+import { genPackage, hasPackage } from './util.js';
 
 class EndlessPassThrough extends PassThrough {
-  end() {}
+  end(): this {
+    return this;
+  }
   close() {
     super.end();
   }

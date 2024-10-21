@@ -3,9 +3,9 @@ import got from 'got';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { vi } from 'vitest';
-import { Context } from '../lib/@types/semantic-release';
-import { DefaultConfig } from '../lib/default-options';
-import { PluginConfig } from '../lib/types';
+import { Context } from '../lib/@types/semantic-release/index.js';
+import { DefaultConfig } from '../lib/default-options.js';
+import { PluginConfig } from '../lib/types.js';
 class BuildInterface {
   name: string;
   version: string;

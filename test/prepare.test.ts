@@ -6,10 +6,10 @@ import {
   sDistPackage,
   setVersionPy,
   setVersionToml,
-} from '../lib/prepare';
-import { pipe, spawn } from '../lib/util';
-import { assertPackage } from '../lib/verify';
-import { genPackage } from './util';
+} from '../lib/prepare.js';
+import { pipe, spawn } from '../lib/util.js';
+import { assertPackage } from '../lib/verify.js';
+import { genPackage } from './util.js';
 
 describe('prepare: build functions', () => {
   const testCases = [

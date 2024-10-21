@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-        "module": "ESNext",
+        "module": "NodeNext",
         "target": "ES2016",
-        "moduleResolution": "Bundler",
+        "moduleResolution": "NodeNext",
         "declaration": true,
         "strict": true,
         "allowJs": true,

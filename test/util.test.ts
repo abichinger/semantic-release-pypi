@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { DefaultConfig } from '../lib/default-options';
-import { normalizeVersion } from '../lib/util';
+import { DefaultConfig } from '../lib/default-options.js';
+import { normalizeVersion } from '../lib/util.js';
 
 test('test DefaultConfig', async () => {
   expect(new DefaultConfig({}).distDir).toBe('dist');

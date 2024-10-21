@@ -1,6 +1,6 @@
 import { execa, Options, ResultPromise } from 'execa';
 import path from 'path';
-import { Context } from './@types/semantic-release';
+import { Context } from './@types/semantic-release/index.js';
 
 async function normalizeVersion(
   version: string,
@@ -38,8 +38,8 @@ function setopt(
 
 function pipe(context: Context): Options {
   return {
-    stdout: context.stdout,
-    stderr: context.stderr,
+    stdout: context.stdout as any,
+    stderr: context.stderr as any,
   };
 }
 

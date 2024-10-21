@@ -1,8 +1,8 @@
 import { Options, ResultPromise } from 'execa';
-import type { Context } from './@types/semantic-release';
-import { DefaultConfig } from './default-options';
-import { createVenv } from './prepare';
-import { PluginConfig } from './types';
+import type { Context } from './@types/semantic-release/index.js';
+import { DefaultConfig } from './default-options.js';
+import { createVenv } from './prepare.js';
+import { PluginConfig } from './types.js';
 import { pipe, spawn } from './util.js';
 
 function publishPackage(
