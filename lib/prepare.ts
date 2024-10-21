@@ -5,7 +5,7 @@ import path from 'path';
 import type { Context } from './@types/semantic-release/index.js';
 import { DefaultConfig } from './default-options.js';
 import { PluginConfig } from './types.js';
-import { normalizeVersion, pipe, setopt, spawn } from './util.js';
+import { __dirname, normalizeVersion, pipe, setopt, spawn } from './util.js';
 import { assertExitCode, isLegacyBuildInterface } from './verify.js';
 
 async function setVersionPy(setupPy: string, version: string) {

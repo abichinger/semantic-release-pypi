@@ -31,10 +31,10 @@ describe('prepare: build functions', () => {
           legacyInterface: t.useLegacyInterface,
         });
         await expect(
-          sDistPackage(config.srcDir, config.distDir, context),
+          sDistPackage(config.srcDir, config.distDir, pipe(context)),
         ).resolves.toBe(undefined);
         await expect(
-          bDistPackage(config.srcDir, config.distDir, context),
+          bDistPackage(config.srcDir, config.distDir, pipe(context)),
         ).resolves.toBe(undefined);
       },
       60000,

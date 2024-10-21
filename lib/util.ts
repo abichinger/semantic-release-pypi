@@ -1,6 +1,9 @@
 import { execa, Options, ResultPromise } from 'execa';
 import path from 'path';
+import url from 'url';
 import { Context } from './@types/semantic-release/index.js';
+
+export const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 async function normalizeVersion(
   version: string,

@@ -6,7 +6,7 @@ import path from 'path';
 import { Context } from './@types/semantic-release/index.js';
 import { DefaultConfig } from './default-options.js';
 import { PluginConfig } from './types.js';
-import { pipe, spawn } from './util.js';
+import { __dirname, pipe, spawn } from './util.js';
 
 function assertEnvVar(name: string) {
   if (!process.env[name]) {
