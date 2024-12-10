@@ -1,6 +1,6 @@
 import { Options } from 'execa';
 import fs from 'fs';
-import { template } from 'lodash';
+import _ from 'lodash';
 import os from 'os';
 import path from 'path';
 import type { Context } from './@types/semantic-release/index.js';
@@ -113,7 +113,7 @@ async function prepare(pluginConfig: PluginConfig, context: Context) {
   const version = await normalizeVersion(nextRelease.version, execaOptions);
 
   if (versionCmd) {
-    const cmd = template(versionCmd)({ version });
+    const cmd = _.template(versionCmd)({ version });
     logger.log(`Running versionCmd: ${cmd}`);
     const [file, ...args] = cmd.split(' ');
     await assertExitCode(file, args, { ...execaOptions, cwd: srcDir }, 0);
