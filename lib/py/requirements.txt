@@ -4,3 +4,4 @@ setuptools~=68.2
 twine>=5.1.1,<6
 tomlkit~=0.12
 packaging~=24.0
+hatch~=1.13.0

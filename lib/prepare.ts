@@ -1,5 +1,6 @@
 import { Options } from 'execa';
 import fs from 'fs';
+import { template } from 'lodash';
 import os from 'os';
 import path from 'path';
 import type { Context } from './@types/semantic-release/index.js';
@@ -82,9 +83,8 @@ async function createVenv(envDir: string, options?: Options): Promise<Options> {
 
 async function prepare(pluginConfig: PluginConfig, context: Context) {
   const { logger, nextRelease } = context;
-  const { srcDir, setupPath, distDir, envDir, installDeps } = new DefaultConfig(
-    pluginConfig,
-  );
+  const { srcDir, setupPath, distDir, envDir, installDeps, versionCmd } =
+    new DefaultConfig(pluginConfig);
 
   if (nextRelease === undefined) {
     throw new Error('nextRelease is undefined');
@@ -112,10 +112,16 @@ async function prepare(pluginConfig: PluginConfig, context: Context) {
 
   const version = await normalizeVersion(nextRelease.version, execaOptions);
 
-  if (isLegacyBuildInterface(srcDir)) {
+  if (versionCmd) {
+    const cmd = template(versionCmd)({ version });
+    logger.log(`Running versionCmd: ${cmd}`);
+    const [file, ...args] = cmd.split(' ');
+    await assertExitCode(file, args, { ...execaOptions, cwd: srcDir }, 0);
+  } else if (isLegacyBuildInterface(srcDir)) {
     logger.log(`Set version to ${version} (setup.cfg)`);
     await setVersionPy(setupPath, version);
   } else {
+    logger.log(`Set version to ${version} (pyproject.toml)`);
     await setVersionToml(srcDir, version, execaOptions);
   }
 

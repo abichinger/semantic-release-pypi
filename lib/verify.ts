@@ -3,6 +3,7 @@ import FormData from 'form-data';
 import fs from 'fs';
 import got from 'got';
 import path from 'path';
+import TOML from 'smol-toml';
 import { Context } from './@types/semantic-release/index.js';
 import { DefaultConfig } from './default-options.js';
 import { PluginConfig } from './types.js';
@@ -28,7 +29,8 @@ async function assertExitCode(
   }
   if (res.exitCode != exitCode) {
     throw Error(
-      `command: ${res.command}, exit code: ${res.exitCode}, expected: ${exitCode}`,
+      res.stderr +
+        `\ncommand: ${res.command}, exit code: ${res.exitCode}, expected: ${exitCode}`,
     );
   }
 }
@@ -79,11 +81,17 @@ function isLegacyBuildInterface(srcDir: string): boolean {
   return !fs.statSync(pyprojectPath).isFile;
 }
 
+function assertVersionCmd(pyproject: any, versionCmd?: string) {
+  const dynamic: string[] = pyproject.project?.dynamic ?? [];
+  if (dynamic.includes('version') && !versionCmd) {
+    throw Error(`'versionCmd' is required when using a dynamic version`);
+  }
+}
+
 async function verify(pluginConfig: PluginConfig, context: Context) {
   const { logger } = context;
-  const { srcDir, setupPath, pypiPublish, repoUrl } = new DefaultConfig(
-    pluginConfig,
-  );
+  const { srcDir, setupPath, pypiPublish, repoUrl, versionCmd } =
+    new DefaultConfig(pluginConfig);
 
   const execaOptions: Options = pipe(context);
 
@@ -109,6 +117,14 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
 
     logger.log('Verify that version is not set in setup.py');
     await verifySetupPy(setupPath, execaOptions);
+  } else {
+    const pyprojectPath = path.join(srcDir, 'pyproject.toml');
+    const toml = fs.readFileSync(pyprojectPath, {
+      encoding: 'utf8',
+      flag: 'r',
+    });
+    const pyproject = TOML.parse(toml);
+    assertVersionCmd(pyproject, versionCmd);
   }
 }
 

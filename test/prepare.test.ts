@@ -3,13 +3,14 @@ import {
   bDistPackage,
   createVenv,
   installPackages,
+  prepare,
   sDistPackage,
   setVersionPy,
   setVersionToml,
 } from '../lib/prepare.js';
 import { pipe, spawn } from '../lib/util.js';
 import { assertPackage } from '../lib/verify.js';
-import { genPackage } from './util.js';
+import { genPackage, OutputAnalyzer } from './util.js';
 
 describe('prepare: build functions', () => {
   const testCases = [
@@ -59,6 +60,23 @@ test('prepare: setVersionToml', async () => {
     setVersionToml(config.srcDir, '2.0.0', pipe(context)),
   ).resolves.toBe(undefined);
 });
+
+test('prepare: versionCmd', async () => {
+  const { pluginConfig, context } = genPackage({
+    legacyInterface: false,
+    config: {
+      versionCmd: 'echo Next version: ${version}',
+    },
+  });
+
+  const outputAnalyzer = new OutputAnalyzer({
+    executed: ['Next version: 1.0.0'],
+  });
+  context.stdout = outputAnalyzer.stream;
+
+  await prepare(pluginConfig, context);
+  expect(outputAnalyzer.res.executed).toBe(true);
+}, 60000);
 
 describe('prepare: installPackages', () => {
   const tests = [

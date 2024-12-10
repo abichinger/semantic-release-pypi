@@ -1,6 +1,7 @@
 import fs from 'fs';
 import got from 'got';
 import path from 'path';
+import { PassThrough } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 import { vi } from 'vitest';
 import { Context } from '../lib/@types/semantic-release/index.js';
@@ -20,6 +21,21 @@ class BuildInterface {
   }
 
   get pyproject() {
+    if (this.version === 'dynamic') {
+      return `
+[project]
+name = "${this.name}"
+dynamic = ["version"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "__init__.py"
+`;
+    }
+
     return `
 [project]
 name = "${this.name}"
@@ -108,11 +124,11 @@ function genPluginArgs(config: PluginConfig) {
   const packageName = `semantic-release-pypi-test-` + uuidv4();
 
   const pluginConfig: PluginConfig = {
+    ...config,
     srcDir: config.srcDir ?? `.tmp/${packageName}`,
     distDir: config.distDir ?? `.tmp/${packageName}/dist`,
     envDir: config.envDir ?? `.tmp/${packageName}/.venv`,
     repoUrl: config.repoUrl ?? 'https://test.pypi.org/legacy/',
-    pypiPublish: config.pypiPublish,
   };
 
   const context: Context = {
@@ -196,4 +212,39 @@ function genPluginArgs(config: PluginConfig) {
   };
 }
 
-export { BuildInterface, genPackage, genPluginArgs, hasPackage };
+class EndlessPassThrough extends PassThrough {
+  end(): this {
+    return this;
+  }
+  close() {
+    super.end();
+  }
+}
+
+class OutputAnalyzer<T extends Record<string, string[]>> {
+  stream: PassThrough;
+  res: Record<keyof T, boolean>;
+
+  constructor(searchStrings: T) {
+    this.stream = new EndlessPassThrough();
+    this.res = Object.fromEntries(
+      Object.keys(searchStrings).map((key) => [key, false]),
+    ) as Record<keyof T, boolean>;
+    this.stream.on('data', (bytes) => {
+      const str = bytes.toString('utf-8');
+      for (const [key, value] of Object.entries(searchStrings)) {
+        if (value.every((searchString) => str.includes(searchString))) {
+          this.res[key as keyof T] = true;
+        }
+      }
+    });
+  }
+}
+
+export {
+  BuildInterface,
+  genPackage,
+  genPluginArgs,
+  hasPackage,
+  OutputAnalyzer,
+};

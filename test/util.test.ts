@@ -19,6 +19,7 @@ test('test normalizeVersion', async () => {
   await expect(normalizeVersion('1.0.1-a1')).resolves.toBe('1.0.1a1');
   await expect(normalizeVersion('1.0.1-alpha')).resolves.toBe('1.0.1a0');
   await expect(normalizeVersion('1.0.1-alpha1')).resolves.toBe('1.0.1a1');
+  await expect(normalizeVersion('1.0.1-alpha.1')).resolves.toBe('1.0.1a1');
 
   await expect(normalizeVersion('1.0.1-b')).resolves.toBe('1.0.1b0');
   await expect(normalizeVersion('1.0.1-beta')).resolves.toBe('1.0.1b0');

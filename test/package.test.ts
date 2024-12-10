@@ -1,16 +1,6 @@
-import { PassThrough } from 'stream';
 import { expect, test } from 'vitest';
 import { prepare, publish, verifyConditions } from '../lib/index.js';
-import { genPackage, hasPackage } from './util.js';
-
-class EndlessPassThrough extends PassThrough {
-  end(): this {
-    return this;
-  }
-  close() {
-    super.end();
-  }
-}
+import { genPackage, hasPackage, OutputAnalyzer } from './util.js';
 
 test('test semantic-release-pypi (pyproject.toml)', async () => {
   if (!process.env['TESTPYPI_TOKEN']) {
@@ -78,26 +68,52 @@ build-backend = "poetry.core.masonry.api"`;
     },
   });
 
-  const stream = new EndlessPassThrough();
-  context.stdout = stream;
-
-  let built = false;
-  stream.on('data', (bytes) => {
-    const str = bytes.toString('utf-8');
-    if (
-      str.includes('Successfully built') &&
-      str.includes('poetry_demo-1.0.0')
-    ) {
-      built = true;
-    }
+  const outputAnalyzer = new OutputAnalyzer({
+    built: ['Successfully built', 'poetry_demo-1.0.0'],
   });
+  context.stdout = outputAnalyzer.stream;
 
   await verifyConditions(config, context);
   await prepare(config, context);
   await publish(config, context);
 
-  expect(built).toEqual(true);
+  expect(outputAnalyzer.res.built).toEqual(true);
   expect(context.logger.log).toHaveBeenCalledWith(
     'Not publishing package due to requested configuration',
   );
+}, 60000);
+
+test('semantic-release-pypi (hatch, dynamic version)', async () => {
+  const pyproject = `[project]
+name = "hatch-demo"
+dynamic = ["version"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "hatch_demo/__init__.py"`;
+
+  const { config, context } = await genPackage({
+    legacyInterface: false,
+    config: { pypiPublish: false, versionCmd: 'hatch version ${version}' },
+    content: pyproject,
+    files: {
+      hatch_demo: {
+        '__init__.py': '__version__ = "0.0.0"\n',
+      },
+    },
+  });
+
+  const outputAnalyzer = new OutputAnalyzer({
+    built: ['Successfully built', 'hatch_demo-1.0.0'],
+  });
+  context.stdout = outputAnalyzer.stream;
+
+  await verifyConditions(config, context);
+  await prepare(config, context);
+  await publish(config, context);
+
+  expect(outputAnalyzer.res.built).toEqual(true);
 }, 60000);

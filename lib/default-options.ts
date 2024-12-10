@@ -47,4 +47,8 @@ export class DefaultConfig {
   public get installDeps() {
     return this.config.installDeps ?? true;
   }
+
+  public get versionCmd() {
+    return this.config.versionCmd;
+  }
 }
