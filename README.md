@@ -87,7 +87,7 @@ Working examples using Github Actions can be found here:
 | Option | Type | Default | Description
 | ------ | ---- | ------- | -----------
 | ```srcDir``` | str | ```.``` | source directory (defaults to current directory)
-| ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to the directory of ```setup.py```
+| ```distDir``` | str | ```dist``` | directory to put the source distribution archive(s) in, relative to ```srcDir```
 | ```repoUrl``` | str | ```https://upload.pypi.org/legacy/``` | The repository (package index) to upload the package to.
 | ```pypiPublish``` | bool | ```true``` | Whether to publish the python package to the pypi registry. If false the package version will still be updated.
 | ```gpgSign``` | bool | ```false``` | Whether to sign the package using GPG. A valid PGP key must already be installed and configured on the host.
