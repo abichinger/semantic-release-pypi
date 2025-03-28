@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
-        python-version: [3.8.x, 3.11.x]
+        node-version: [18.x, 22.x]
+        python-version: [3.9.x, 3.13.x]
 
     steps:
     - uses: actions/checkout@v4

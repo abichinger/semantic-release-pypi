@@ -11,7 +11,7 @@
 ## CI environment
 
 - [Node.js](https://semantic-release.gitbook.io/semantic-release/support/node-version) >= 18.0.0
-- Python >= 3.8
+- Python >= 3.9
 
 ## Build System Interfaces
 
