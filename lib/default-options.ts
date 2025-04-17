@@ -28,6 +28,14 @@ export class DefaultConfig {
     return this.config.repoUrl ?? 'https://upload.pypi.org/legacy/';
   }
 
+  public get repoUsername() {
+    return this.config.repoUsername ?? '__token__';
+  }
+
+  public get repoToken() {
+    return this.config.repoToken ?? '';
+  }
+
   public get pypiPublish() {
     return this.config.pypiPublish ?? true;
   }

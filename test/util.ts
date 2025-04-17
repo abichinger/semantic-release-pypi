@@ -129,6 +129,8 @@ function genPluginArgs(config: PluginConfig) {
     distDir: config.distDir ?? `.tmp/${packageName}/dist`,
     envDir: config.envDir ?? `.tmp/${packageName}/.venv`,
     repoUrl: config.repoUrl ?? 'https://test.pypi.org/legacy/',
+    repoUsername: config.repoUsername ?? '__token__',
+    repoToken: config.repoToken ?? '',
   };
 
   const context: Context = {
