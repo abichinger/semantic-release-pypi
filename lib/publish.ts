@@ -67,11 +67,6 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
 
   if (pypiPublish !== false) {
     logger.log(`Publishing package to ${repoUrl}`);
-    if (process.env['PYPI_TOKEN'] === undefined && repoToken === '') {
-      logger.error(
-        'Token is not set. Either set PYPI_TOKEN environment variable or repoToken in plugin configuration',
-      );
-    }
     const result = publishPackage(
       srcDir,
       distDir,
