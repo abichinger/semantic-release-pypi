@@ -7,6 +7,8 @@ test('test DefaultConfig', async () => {
   expect(new DefaultConfig({}).srcDir).toBe('.');
   expect(new DefaultConfig({}).setupPath).toBe('setup.py');
   expect(new DefaultConfig({}).repoUrl).toBe('https://upload.pypi.org/legacy/');
+  expect(new DefaultConfig({}).repoUsername).toBe('__token__');
+  expect(new DefaultConfig({}).repoToken).toBe('');
   expect(new DefaultConfig({ distDir: 'mydist' }).distDir).toBe('mydist');
 });
 

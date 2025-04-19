@@ -90,22 +90,31 @@ function assertVersionCmd(pyproject: any, versionCmd?: string) {
 
 async function verify(pluginConfig: PluginConfig, context: Context) {
   const { logger } = context;
-  const { srcDir, setupPath, pypiPublish, repoUrl, versionCmd } =
-    new DefaultConfig(pluginConfig);
+  const {
+    srcDir,
+    setupPath,
+    pypiPublish,
+    repoUrl,
+    repoUsername,
+    repoToken,
+    versionCmd,
+  } = new DefaultConfig(pluginConfig);
 
   const execaOptions: Options = pipe(context);
 
   if (pypiPublish !== false) {
-    const username = process.env['PYPI_USERNAME']
-      ? process.env['PYPI_USERNAME']
-      : '__token__';
-    const token = process.env['PYPI_TOKEN'];
     const repo = process.env['PYPI_REPO_URL'] ?? repoUrl;
+    const username = process.env['PYPI_USERNAME'] ?? repoUsername;
+    const token = process.env['PYPI_TOKEN'] ?? repoToken;
 
-    assertEnvVar('PYPI_TOKEN');
+    if (token === '') {
+      throw new Error(
+        `Token is not set. Either set PYPI_TOKEN environment variable or repoToken in plugin configuration`,
+      );
+    }
 
     logger.log(`Verify authentication for ${username}@${repo}`);
-    await verifyAuth(repo, username, token!);
+    await verifyAuth(repo, username, token);
   }
 
   if (isLegacyBuildInterface(srcDir)) {

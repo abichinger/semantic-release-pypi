@@ -9,6 +9,8 @@ function publishPackage(
   srcDir: string,
   distDir: string,
   repoUrl: string,
+  repoUsername: string,
+  repoToken: string,
   gpgSign: boolean,
   gpgIdentity?: string,
   options?: Options,
@@ -37,10 +39,8 @@ function publishPackage(
       cwd: srcDir,
       env: {
         ...options?.env,
-        TWINE_USERNAME: process.env['PYPI_USERNAME']
-          ? process.env['PYPI_USERNAME']
-          : '__token__',
-        TWINE_PASSWORD: process.env['PYPI_TOKEN'],
+        TWINE_USERNAME: repoUsername,
+        TWINE_PASSWORD: repoToken,
       },
     },
   );
@@ -55,6 +55,8 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
     gpgSign,
     gpgIdentity,
     repoUrl,
+    repoUsername,
+    repoToken,
     envDir,
   } = new DefaultConfig(pluginConfig);
 
@@ -69,6 +71,8 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
       srcDir,
       distDir,
       process.env['PYPI_REPO_URL'] ?? repoUrl,
+      process.env['PYPI_USERNAME'] ?? repoUsername,
+      process.env['PYPI_TOKEN'] ?? repoToken,
       gpgSign,
       gpgIdentity,
       options,
