@@ -17,7 +17,7 @@ file.close()
 
 # modifiy version (tomlkit will preserve comments)
 toml = parse(pyproject)
-if 'tool' in toml and 'poetry' in toml['tool']:
+if 'tool' in toml and 'poetry' in toml['tool'] and "version" in toml["tool"]["poetry"]:
     print('Poetry package detected')
     toml['tool']['poetry']['version'] = args.version
 else:
