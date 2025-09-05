@@ -29,7 +29,6 @@ function publishPackage(
       '--repository-url',
       repoUrl,
       '--non-interactive',
-      '--skip-existing',
       '--verbose',
       ...signArgs,
       `${distDir}/*`,
