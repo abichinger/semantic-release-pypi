@@ -1,6 +1,6 @@
 {
   "name": "semantic-release-pypi",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "semantic-release plugin to publish a python package to PyPI",
   "type": "module",
   "main": "dist/index.js",
