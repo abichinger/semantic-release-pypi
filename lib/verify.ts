@@ -126,8 +126,10 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
       throw Error(`setup.py not found, path: ${setupPath}`);
     }
 
+    if (!versionCmd) {
       logger.log('Verify that version is not set in setup.py');
       await verifySetupPy(setupPath, execaOptions);
+    }
   } else {
     const pyprojectPath = path.join(srcDir, 'pyproject.toml');
     const toml = fs.readFileSync(pyprojectPath, {
