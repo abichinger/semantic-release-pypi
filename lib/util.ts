@@ -1,4 +1,4 @@
-import { execa, Options, ResultPromise } from 'execa';
+import { execa, execaCommand, Options, ResultPromise } from 'execa';
 import path from 'path';
 import url from 'url';
 import { Context } from './@types/semantic-release/index.js';
@@ -67,4 +67,21 @@ function spawn(
   return cp;
 }
 
-export { normalizeVersion, pipe, setopt, spawn };
+function spawnCommand(command: string, options?: Options): ResultPromise {
+  const cp = execaCommand(command, {
+    ...options,
+    stdout: undefined,
+    stderr: undefined,
+  });
+
+  if (options?.stdout) {
+    (cp.stdout as any)?.pipe(options.stdout, { end: false });
+  }
+  if (options?.stderr) {
+    (cp.stderr as any)?.pipe(options.stderr, { end: false });
+  }
+
+  return cp;
+}
+
+export { normalizeVersion, pipe, setopt, spawn, spawnCommand };

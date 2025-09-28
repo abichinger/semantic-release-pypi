@@ -41,6 +41,38 @@ test('semantic-release-pypi (setup.py, publish=false)', async () => {
   );
 }, 60000);
 
+test('semantic-release-pypi (setup.py, dynamic version, publish=false)', async () => {
+  const { config, context } = await genPackage({
+    legacyInterface: true,
+    config: {
+      pypiPublish: false,
+      versionCmd: [
+        'sed',
+        '-i',
+        's/version=".*"/version="${version}"/',
+        'setup.py',
+      ],
+    },
+    content: `from setuptools import setup
+
+setup(name="setup-py-dynamic", version="0.0.0")`,
+  });
+
+  const outputAnalyzer = new OutputAnalyzer({
+    built: ['Successfully built', 'setup_py_dynamic-1.0.0'],
+  });
+  context.stdout = outputAnalyzer.stream;
+
+  await verifyConditions(config, context);
+  await prepare(config, context);
+  await publish(config, context);
+
+  expect(outputAnalyzer.res.built).toEqual(true);
+  expect(context.logger.log).toHaveBeenCalledWith(
+    'Not publishing package due to requested configuration',
+  );
+}, 60000);
+
 test('semantic-release-pypi (poetry, publish=false)', async () => {
   const pyproject = `[tool.poetry]
 name = "poetry-demo"

@@ -6,7 +6,14 @@ import path from 'path';
 import type { Context } from './@types/semantic-release/index.js';
 import { DefaultConfig } from './default-options.js';
 import { PluginConfig } from './types.js';
-import { __dirname, normalizeVersion, pipe, setopt, spawn } from './util.js';
+import {
+  __dirname,
+  normalizeVersion,
+  pipe,
+  setopt,
+  spawn,
+  spawnCommand,
+} from './util.js';
 import { assertExitCode, isLegacyBuildInterface } from './verify.js';
 
 async function setVersionPy(setupPy: string, version: string) {
@@ -23,9 +30,11 @@ async function setVersionToml(
   options?: Options,
 ) {
   await assertExitCode(
-    'python3',
-    [path.resolve(__dirname, 'py/set_version.py'), '-v', version, srcDir],
-    options,
+    spawn(
+      'python3',
+      [path.resolve(__dirname, 'py/set_version.py'), '-v', version, srcDir],
+      options,
+    ),
     0,
   );
 }
@@ -113,10 +122,21 @@ async function prepare(pluginConfig: PluginConfig, context: Context) {
   const version = await normalizeVersion(nextRelease.version, execaOptions);
 
   if (versionCmd) {
-    const cmd = _.template(versionCmd)({ version });
-    logger.log(`Running versionCmd: ${cmd}`);
-    const [file, ...args] = cmd.split(' ');
-    await assertExitCode(file, args, { ...execaOptions, cwd: srcDir }, 0);
+    if (typeof versionCmd === 'string') {
+      const cmd = _.template(versionCmd)({ version });
+      logger.log(`Running versionCmd: ${cmd}`);
+      await assertExitCode(
+        spawnCommand(cmd, { ...execaOptions, cwd: srcDir }),
+        0,
+      );
+    } else {
+      const cmd = versionCmd.map((s) => _.template(s)({ version }));
+      logger.log(`Running versionCmd: ${cmd.join(' ')}`);
+      await assertExitCode(
+        spawn(cmd[0], cmd.slice(1), { ...execaOptions, cwd: srcDir }),
+        0,
+      );
+    }
   } else if (isLegacyBuildInterface(srcDir)) {
     logger.log(`Set version to ${version} (setup.cfg)`);
     await setVersionPy(setupPath, version);

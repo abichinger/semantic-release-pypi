@@ -9,5 +9,5 @@ export interface PluginConfig {
   gpgIdentity?: string;
   envDir?: string | false;
   installDeps?: boolean;
-  versionCmd?: string;
+  versionCmd?: string | string[];
 }

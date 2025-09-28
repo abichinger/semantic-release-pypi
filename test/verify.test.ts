@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { spawn } from '../lib/util.js';
 import {
   assertEnvVar,
   assertExitCode,
@@ -15,15 +16,19 @@ test('test assertEnvVar', async () => {
 });
 
 test('test assertExitCode', async () => {
-  await expect(assertExitCode('node', ['--version'], {}, 0)).resolves.toBe(
-    undefined,
-  );
-  await expect(assertExitCode('node', ['--version'], {}, 1)).rejects.toThrow();
+  await expect(
+    assertExitCode(spawn('node', ['--version'], {}), 0),
+  ).resolves.toBe(undefined);
+  await expect(
+    assertExitCode(spawn('node', ['--version'], {}), 1),
+  ).rejects.toThrow();
 
-  await expect(assertExitCode('node', ['--ver'], {}, 9)).resolves.toBe(
+  await expect(assertExitCode(spawn('node', ['--ver'], {}), 9)).resolves.toBe(
     undefined,
   );
-  await expect(assertExitCode('node', ['--ver'], {}, 0)).rejects.toThrow();
+  await expect(
+    assertExitCode(spawn('node', ['--ver'], {}), 0),
+  ).rejects.toThrow();
 });
 
 test('test assertPackage', async () => {

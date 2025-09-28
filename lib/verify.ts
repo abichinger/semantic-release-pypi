@@ -1,4 +1,9 @@
-import { ExecaError, Result as ExecaResult, Options } from 'execa';
+import {
+  ExecaError,
+  Result as ExecaResult,
+  Options,
+  ResultPromise,
+} from 'execa';
 import FormData from 'form-data';
 import fs from 'fs';
 import got from 'got';
@@ -15,15 +20,10 @@ function assertEnvVar(name: string) {
   }
 }
 
-async function assertExitCode(
-  executable: string,
-  args: string[] = [],
-  options?: Options,
-  exitCode = 0,
-) {
+async function assertExitCode(subprocess: ResultPromise, exitCode = 0) {
   let res: ExecaError | ExecaResult;
   try {
-    res = await spawn(executable, args, options);
+    res = await subprocess;
   } catch (err) {
     res = err as ExecaError;
   }
@@ -37,7 +37,7 @@ async function assertExitCode(
 
 async function assertPackage(name: string, options?: Options) {
   try {
-    await assertExitCode('pip3', ['show', name], options);
+    await assertExitCode(spawn('pip3', ['show', name], options));
   } catch (err) {
     throw Error(`Package ${name} is not installed`);
   }
@@ -45,9 +45,11 @@ async function assertPackage(name: string, options?: Options) {
 
 async function verifySetupPy(setupPy: string, options?: Options) {
   await assertExitCode(
-    'python3',
-    [path.resolve(__dirname, 'py/verify_setup.py'), path.basename(setupPy)],
-    { ...options, cwd: path.dirname(setupPy) },
+    spawn(
+      'python3',
+      [path.resolve(__dirname, 'py/verify_setup.py'), path.basename(setupPy)],
+      { ...options, cwd: path.dirname(setupPy) },
+    ),
     0,
   );
 }
@@ -81,7 +83,7 @@ function isLegacyBuildInterface(srcDir: string): boolean {
   return !fs.statSync(pyprojectPath).isFile;
 }
 
-function assertVersionCmd(pyproject: any, versionCmd?: string) {
+function assertVersionCmd(pyproject: any, versionCmd?: string | string[]) {
   const dynamic: string[] = pyproject.project?.dynamic ?? [];
   if (dynamic.includes('version') && !versionCmd) {
     throw Error(`'versionCmd' is required when using a dynamic version`);
@@ -124,8 +126,8 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
       throw Error(`setup.py not found, path: ${setupPath}`);
     }
 
-    logger.log('Verify that version is not set in setup.py');
-    await verifySetupPy(setupPath, execaOptions);
+      logger.log('Verify that version is not set in setup.py');
+      await verifySetupPy(setupPath, execaOptions);
   } else {
     const pyprojectPath = path.join(srcDir, 'pyproject.toml');
     const toml = fs.readFileSync(pyprojectPath, {
