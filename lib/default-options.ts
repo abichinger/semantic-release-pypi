@@ -59,4 +59,8 @@ export class DefaultConfig {
   public get versionCmd() {
     return this.config.versionCmd;
   }
+
+  public get skipIfConflict() {
+    return this.config.skipIfConflict ?? false;
+  }
 }
