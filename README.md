@@ -149,8 +149,8 @@ source init.sh
 - Fork from this repository
 - Run `source init.sh`
 - Add your changes
-- Make sure your code passes all unit tests by running `yarn test`
-- Run `yarn lint` to ensure your code adheres to the linting rules
+- Make sure your code passes all unit tests by running `npm run test`
+- Run `npm run lint` to ensure your code adheres to the linting rules
 - Issue a PR
 
 ## Alternatives
