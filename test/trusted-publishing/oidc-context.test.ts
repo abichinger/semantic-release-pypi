@@ -18,7 +18,7 @@ describe('oidcContextEstablished', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    exchangeTokenMock.mockResolvedValue(undefined);
+    exchangeTokenMock.mockResolvedValue('');
   });
 
   test('returns true when trusted publishing is established with the official registry', async () => {
@@ -30,7 +30,7 @@ describe('oidcContextEstablished', () => {
   });
 
   test('returns false when OIDC token exchange fails in a supported CI provider', async () => {
-    exchangeTokenMock.mockResolvedValue(undefined);
+    exchangeTokenMock.mockResolvedValue('');
 
     await expect(
       oidcContextEstablished(OFFICIAL_PYPI_REGISTRY, context),
