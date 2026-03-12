@@ -19,15 +19,17 @@ vi.mock('env-ci', () => ({
   default: envCiMock,
 }));
 
-import { exchangeToken } from '../../lib/trusted-publishing/token-exchange.js';
+import { resolveToken } from '../../lib/trusted-publishing/token-exchange.js';
 
-describe('exchangeToken', () => {
+describe('resolveToken', () => {
   const fetchMock = vi.fn();
   const context = { logger: { log: vi.fn() } } as unknown as Context;
+  let repoToken = ''
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal('fetch', fetchMock);
+    delete process.env['PYPI_TOKEN']
   });
 
   afterEach(() => {
@@ -44,7 +46,7 @@ describe('exchangeToken', () => {
       ),
     );
 
-    await expect(exchangeToken(context)).resolves.toBe('token-value');
+    await expect(resolveToken(repoToken, context)).resolves.toBe('token-value');
     expect(getIDTokenMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith(
       `${OFFICIAL_PYPI_REGISTRY}_/oidc/mint-token`,
@@ -56,17 +58,17 @@ describe('exchangeToken', () => {
     );
   });
 
-  test('returns undefined when ID token retrieval fails on GitHub Actions', async () => {
+  test('returns empty string when ID token retrieval fails on GitHub Actions', async () => {
     envCiMock.mockReturnValue({ isCi: true, name: GITHUB_ACTIONS_PROVIDER_NAME });
     getIDTokenMock.mockRejectedValue(
       new Error('Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable'),
     );
 
-    await expect(exchangeToken(context)).resolves.toBeUndefined();
+    await expect(resolveToken(repoToken, context)).resolves.toBe('');
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  test('returns undefined when token exchange fails on GitHub Actions', async () => {
+  test('returns empty string when token exchange fails on GitHub Actions', async () => {
     envCiMock.mockReturnValue({ isCi: true, name: GITHUB_ACTIONS_PROVIDER_NAME });
     getIDTokenMock.mockResolvedValue('id-token-value');
     fetchMock.mockResolvedValue(
@@ -76,14 +78,23 @@ describe('exchangeToken', () => {
       ),
     );
 
-    await expect(exchangeToken(context)).resolves.toBeUndefined();
+    await expect(resolveToken(repoToken, context)).resolves.toBe('');
   });
 
-  test('returns undefined when no supported CI provider is detected', async () => {
+  test('returns empty string when no supported CI provider is detected', async () => {
     envCiMock.mockReturnValue({ isCi: true, name: 'Other Service' });
 
-    expect(exchangeToken(context)).toBeUndefined();
+    expect(resolveToken(repoToken, context)).resolves.toBe('');
     expect(getIDTokenMock).not.toHaveBeenCalled();
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  test('returns env token when present', async () => {
+    process.env['PYPI_TOKEN'] = 'env-token'
+    expect(resolveToken(repoToken, context)).resolves.toBe('env-token')
+  })
+
+  test('returns repoToken when no env token present', async () => {
+    expect(resolveToken('repo-token', context)).resolves.toBe('repo-token')
+  })
 });

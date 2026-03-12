@@ -4,6 +4,7 @@ import { DefaultConfig } from './default-options.js';
 import { createVenv } from './prepare.js';
 import { PluginConfig } from './types.js';
 import { pipe, spawn } from './util.js';
+import { resolveToken } from './trusted-publishing/token-exchange.js';
 
 function publishPackage(
   srcDir: string,
@@ -66,12 +67,13 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
 
   if (pypiPublish !== false) {
     logger.log(`Publishing package to ${repoUrl}`);
+    const pypiToken = await resolveToken(repoToken, context)
     const result = publishPackage(
       srcDir,
       distDir,
       process.env['PYPI_REPO_URL'] ?? repoUrl,
       process.env['PYPI_USERNAME'] ?? repoUsername,
-      process.env['PYPI_TOKEN'] ?? repoToken,
+      pypiToken,
       gpgSign,
       gpgIdentity,
       options,

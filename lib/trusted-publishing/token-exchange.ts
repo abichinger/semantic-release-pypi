@@ -26,7 +26,7 @@ async function exchangeIdToken(idToken: string, context: Context) {
     `OIDC token exchange with the PyPI registry failed: ${response.status} ${responseBody.message}`,
   );
 
-  return undefined;
+  return '';
 }
 
 async function exchangeGithubActionsToken(context: Context) {
@@ -43,7 +43,7 @@ async function exchangeGithubActionsToken(context: Context) {
       'Have you granted the `id-token: write` permission to this workflow?',
     );
 
-    return undefined;
+    return '';
   }
 
   return exchangeIdToken(idToken, context);
@@ -56,7 +56,15 @@ function exchangeToken(context: Context) {
       return exchangeGithubActionsToken(context);
     }
   }
-  return undefined;
+  return '';
 }
 
-export { exchangeToken };
+async function resolveToken(repoToken: string, context: Context) {
+  let pypiToken = process.env['PYPI_TOKEN'] ?? repoToken
+  if (!pypiToken) {
+    pypiToken = await exchangeToken(context)
+  }
+  return pypiToken
+}
+
+export { resolveToken };
