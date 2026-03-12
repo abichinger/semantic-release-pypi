@@ -7,12 +7,13 @@ import {
 import FormData from 'form-data';
 import fs from 'fs';
 import got from 'got';
-import path from 'path';
+import path, { resolve } from 'path';
 import TOML from 'smol-toml';
 import { Context } from './@types/semantic-release/index.js';
 import { DefaultConfig } from './default-options.js';
 import { PluginConfig } from './types.js';
 import { __dirname, pipe, spawn } from './util.js';
+import { resolveToken } from './trusted-publishing/token-exchange.js';
 
 function assertEnvVar(name: string) {
   if (!process.env[name]) {
@@ -110,9 +111,7 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
     const token = process.env['PYPI_TOKEN'] ?? repoToken;
 
     if (token === '') {
-      throw new Error(
-        `Token is not set. Either set PYPI_TOKEN environment variable or repoToken in plugin configuration`,
-      );
+      logger.log('Token is not set in env, or passed-in as an argument. Will attempt to use OIDC Trusted Publishing.')
     }
 
     logger.log(`Verify authentication for ${username}@${repo}`);
