@@ -36,7 +36,7 @@ async function exchangeGithubActionsToken(context: Context) {
   logger.log('Verifying OIDC context for publishing from GitHub Actions');
 
   try {
-    idToken = await getIDToken();
+    idToken = await getIDToken('pypi');
   } catch (e: any) {
     logger.log(`Retrieval of GitHub Actions OIDC token failed: ${e.message}`);
     logger.log(
