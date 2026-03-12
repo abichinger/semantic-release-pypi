@@ -67,4 +67,4 @@ async function resolveToken(repoToken: string, context: Context) {
   return pypiToken
 }
 
-export { exchangeToken, resolveToken };
+export { resolveToken };
