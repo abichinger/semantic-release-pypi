@@ -10,4 +10,5 @@ export interface PluginConfig {
   envDir?: string | false;
   installDeps?: boolean;
   versionCmd?: string | string[];
+  skipIfConflict?: boolean;
 }

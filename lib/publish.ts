@@ -6,6 +6,13 @@ import { PluginConfig } from './types.js';
 import { pipe, spawn } from './util.js';
 import { resolveToken } from './trusted-publishing/token-exchange.js';
 
+function isConflictError(err: any): boolean {
+  const output = [err.stderr, err.stdout, err.message]
+    .filter(Boolean)
+    .join('\n');
+  return /409 Conflict|409|File already exists/i.test(output);
+}
+
 function publishPackage(
   srcDir: string,
   distDir: string,
@@ -58,6 +65,7 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
     repoUsername,
     repoToken,
     envDir,
+    skipIfConflict,
   } = new DefaultConfig(pluginConfig);
 
   let options = pipe(context);
@@ -78,7 +86,15 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
       gpgIdentity,
       options,
     );
-    await result;
+    try {
+      await result;
+    } catch (err: any) {
+      if (skipIfConflict && isConflictError(err)) {
+        logger.log('Package version already exists, skipping upload');
+      } else {
+        throw err;
+      }
+    }
   } else {
     logger.log('Not publishing package due to requested configuration');
   }
