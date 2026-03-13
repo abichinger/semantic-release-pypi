@@ -112,6 +112,7 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
 
     if (token === '') {
       logger.log('Token is not set in env, or passed-in as an argument. Will attempt to use OIDC Trusted Publishing.')
+      return
     }
 
     logger.log(`Verify authentication for ${username}@${repo}`);
