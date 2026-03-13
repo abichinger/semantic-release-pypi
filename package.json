@@ -11,6 +11,7 @@
   "private": false,
   "devDependencies": {
     "@semantic-release/git": "^10.0.1",
+    "@types/env-ci": "^3.1.4",
     "@types/lodash": "^4.17.13",
     "@types/node": "^22.19.15",
     "@types/uuid": "^9.0.4",
@@ -36,6 +37,8 @@
     "copy": "copyfiles -u 1 lib/py/* dist"
   },
   "dependencies": {
+    "@actions/core": "^3.0.0",
+    "env-ci": "^11.2.0",
     "execa": "^9.4.1",
     "form-data": "^3.0.0",
     "got": "^12.6.1",
