@@ -30,7 +30,9 @@
   },
   "scripts": {
     "build": "npm run clean && tsc --project tsconfig.build.json && npm run copy",
-    "test": "vitest",
+    "test:unit": "vitest --config vitest.config.ts",
+    "test:e2e": "vitest --config vitest.e2e.config.ts",
+    "test:all": "vitest run --config vitest.config.ts && vitest run --config vitest.e2e.config.ts",
     "lint": "eslint lib/*.ts test/*.ts",
     "clean": "rimraf dist/ && rimraf .tmp/",
     "copy": "copyfiles -u 1 lib/py/* dist"

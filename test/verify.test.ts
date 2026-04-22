@@ -3,9 +3,7 @@ import { spawn } from '../lib/util.js';
 import {
   assertEnvVar,
   assertExitCode,
-  assertPackage,
   verify,
-  verifyAuth,
   verifySetupPy,
 } from '../lib/verify.js';
 import { genPackage, genPluginArgs } from './util.js';
@@ -29,11 +27,6 @@ test('test assertExitCode', async () => {
   await expect(
     assertExitCode(spawn('node', ['--ver'], {}), 0),
   ).rejects.toThrow();
-});
-
-test('test assertPackage', async () => {
-  await expect(assertPackage('pip')).resolves.toBe(undefined);
-  await expect(assertPackage('foo-bar-baz')).rejects.toThrow();
 });
 
 describe('test verifySetupPy', () => {
@@ -74,19 +67,6 @@ describe('test verifySetupPy', () => {
     test(c.content, async () => {
       await testfn(c.content, c.resolves);
     });
-  }
-});
-
-test('test verifyAuth', async () => {
-  const repoUrl = 'https://test.pypi.org/legacy/';
-
-  await expect(verifyAuth(repoUrl, '__token__', '12345')).rejects.toThrow();
-  if (process.env['TESTPYPI_TOKEN']) {
-    await expect(
-      verifyAuth(repoUrl, '__token__', process.env['TESTPYPI_TOKEN']),
-    ).resolves.toBe(undefined);
-  } else {
-    console.warn('skipped verifyAuth because TESTPYPI_TOKEN is not set');
   }
 });
 

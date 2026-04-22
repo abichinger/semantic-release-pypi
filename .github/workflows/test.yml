@@ -35,4 +35,4 @@ jobs:
     - name: Run tests
       env:
         TESTPYPI_TOKEN: ${{ secrets.TESTPYPI_TOKEN }}
-      run: npm run test
+      run: npm run test:all

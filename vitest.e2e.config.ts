@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     root: 'test',
-    include: ['*.test.ts'],
+    include: ['e2e/**/*.test.ts'],
     globalSetup: './setup.ts',
   },
 });

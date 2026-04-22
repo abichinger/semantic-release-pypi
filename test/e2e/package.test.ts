@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { prepare, publish, verifyConditions } from '../lib/index.js';
-import { genPackage, hasPackage, OutputAnalyzer } from './util.js';
+import { prepare, publish, verifyConditions } from '../../lib/index.js';
+import { genPackage, hasPackage, OutputAnalyzer } from '../util.js';
 
 test('test semantic-release-pypi (pyproject.toml)', async () => {
   if (!process.env['TESTPYPI_TOKEN']) {
