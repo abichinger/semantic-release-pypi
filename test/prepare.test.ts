@@ -1,9 +1,10 @@
 import fs from 'fs';
+import path from 'path';
 import TOML from 'smol-toml';
 import { describe, expect, test } from 'vitest';
-import { setVersionPy, setVersionToml } from '../lib/prepare.js';
+import { prepare, setVersionPy, setVersionToml } from '../lib/prepare.js';
 import { pipe } from '../lib/util.js';
-import { genPackage } from './util.js';
+import { genPackage, genPluginArgs } from './util.js';
 
 test('prepare: setVersionPy', async () => {
   const { config } = genPackage({
@@ -12,6 +13,11 @@ test('prepare: setVersionPy', async () => {
   await expect(setVersionPy(config.setupPath, '2.0.0')).resolves.toBe(
     undefined,
   );
+
+  // Verify the version was actually written to setup.cfg
+  const setupCfgPath = path.join(config.srcDir, 'setup.cfg');
+  const setupCfg = fs.readFileSync(setupCfgPath, 'utf8');
+  expect(setupCfg).toContain('version = 2.0.0');
 });
 
 describe('prepare: setVersionToml', async () => {
@@ -73,4 +79,16 @@ python = "^3.7"`,
       60000,
     );
   }
+});
+
+test('prepare: throws immediately when nextRelease is undefined', async () => {
+  const { pluginConfig, context } = genPluginArgs({
+    pypiPublish: false,
+    installDeps: false,
+    envDir: false,
+  });
+  context.nextRelease = undefined;
+  await expect(prepare(pluginConfig, context)).rejects.toThrow(
+    'nextRelease is undefined',
+  );
 });

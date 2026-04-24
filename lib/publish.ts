@@ -98,4 +98,4 @@ async function publish(pluginConfig: PluginConfig, context: Context) {
   }
 }
 
-export { publish, publishPackage };
+export { isConflictError, publish, publishPackage };

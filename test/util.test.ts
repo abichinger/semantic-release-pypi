@@ -1,15 +1,62 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { DefaultConfig } from '../lib/default-options.js';
 import { normalizeVersion } from '../lib/util.js';
 
-test('test DefaultConfig', async () => {
-  expect(new DefaultConfig({}).distDir).toBe('dist');
-  expect(new DefaultConfig({}).srcDir).toBe('.');
-  expect(new DefaultConfig({}).setupPath).toBe('setup.py');
-  expect(new DefaultConfig({}).repoUrl).toBe('https://upload.pypi.org/legacy/');
-  expect(new DefaultConfig({}).repoUsername).toBe('__token__');
-  expect(new DefaultConfig({}).repoToken).toBe('');
-  expect(new DefaultConfig({ distDir: 'mydist' }).distDir).toBe('mydist');
+describe('DefaultConfig: defaults', () => {
+  test('default values', () => {
+    const cfg = new DefaultConfig({});
+
+    expect(cfg.srcDir).toBe('.');
+    expect(cfg.distDir).toBe('dist');
+    expect(cfg.setupPath).toBe('setup.py');
+    expect(cfg.pyprojectPath).toBe('pyproject.toml');
+    expect(cfg.repoUrl).toBe('https://upload.pypi.org/legacy/');
+    expect(cfg.repoUsername).toBe('__token__');
+    expect(cfg.repoToken).toBe('');
+    expect(cfg.pypiPublish).toBe(true);
+    expect(cfg.gpgSign).toBe(false);
+    expect(cfg.gpgIdentity).toBeUndefined();
+    expect(cfg.envDir).toBe('.venv');
+    expect(cfg.installDeps).toBe(true);
+    expect(cfg.versionCmd).toBeUndefined();
+    expect(cfg.skipIfConflict).toBe(false);
+  });
+});
+
+describe('DefaultConfig: explicit overrides', () => {
+  test('explicit overrides', () => {
+    const cfg = new DefaultConfig({
+      srcDir: 'src/mypackage',
+      distDir: 'mydist',
+      repoUrl: 'https://test.pypi.org/legacy/',
+      pypiPublish: false,
+      gpgSign: true,
+      gpgIdentity: 'me@example.com',
+      envDir: false,
+      installDeps: false,
+      versionCmd: 'bump ${version}',
+      skipIfConflict: true,
+    });
+
+    expect(cfg.srcDir).toBe('src/mypackage');
+    expect(cfg.setupPath).toBe('src/mypackage/setup.py');
+    expect(cfg.pyprojectPath).toBe('src/mypackage/pyproject.toml');
+    expect(cfg.distDir).toBe('mydist');
+    expect(cfg.repoUrl).toBe('https://test.pypi.org/legacy/');
+    expect(cfg.pypiPublish).toBe(false);
+    expect(cfg.gpgSign).toBe(true);
+    expect(cfg.gpgIdentity).toBe('me@example.com');
+    expect(cfg.envDir).toBe(false);
+    expect(cfg.installDeps).toBe(false);
+    expect(cfg.versionCmd).toBe('bump ${version}');
+    expect(cfg.skipIfConflict).toBe(true);
+  });
+
+  test('versionCmd can be an array', () => {
+    expect(
+      new DefaultConfig({ versionCmd: ['bump', '${version}'] }).versionCmd,
+    ).toEqual(['bump', '${version}']);
+  });
 });
 
 test('test normalizeVersion', async () => {
