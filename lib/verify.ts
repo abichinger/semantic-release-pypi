@@ -80,7 +80,7 @@ function isLegacyBuildInterface(srcDir: string): boolean {
   if (!fs.existsSync(pyprojectPath)) {
     return true;
   }
-  return !fs.statSync(pyprojectPath).isFile;
+  return !fs.statSync(pyprojectPath).isFile();
 }
 
 function assertVersionCmd(pyproject: any, versionCmd?: string | string[]) {
