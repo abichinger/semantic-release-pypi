@@ -1,7 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { spawn } from '../lib/util.js';
 import {
   assertEnvVar,
@@ -10,7 +10,7 @@ import {
   verify,
   verifySetupPy,
 } from '../lib/verify.js';
-import { genPackage, genPluginArgs } from './util.js';
+import { clearTrustedPublisherEnv, genPackage, genPluginArgs } from './util.js';
 
 test('assertEnvVar: resolves for existing env var', async () => {
   expect(assertEnvVar('PATH')).toBe(undefined);
@@ -114,8 +114,8 @@ describe('verifySetupPy', () => {
 });
 
 test('verify: throws when token is empty and pypiPublish is not false', async () => {
-  const originalToken = process.env['PYPI_TOKEN'];
-  delete process.env['PYPI_TOKEN'];
+  vi.stubEnv('PYPI_TOKEN', undefined);
+  clearTrustedPublisherEnv();
 
   try {
     const { pluginConfig, context } = genPackage({
@@ -127,9 +127,7 @@ test('verify: throws when token is empty and pypiPublish is not false', async ()
       'Token is not set',
     );
   } finally {
-    if (originalToken !== undefined) {
-      process.env['PYPI_TOKEN'] = originalToken;
-    }
+    vi.unstubAllEnvs();
   }
 });
 

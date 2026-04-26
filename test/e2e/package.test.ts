@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { prepare, publish, verifyConditions } from '../../lib/index.js';
 import { genPackage, hasPackage, OutputAnalyzer } from '../util.js';
 
@@ -9,7 +9,7 @@ test('test semantic-release-pypi (pyproject.toml)', async () => {
     );
     return;
   }
-  process.env['PYPI_TOKEN'] = process.env['TESTPYPI_TOKEN'];
+  vi.stubEnv('PYPI_TOKEN', process.env['TESTPYPI_TOKEN']);
 
   const { config, context, packageName } = await genPackage({
     legacyInterface: false,

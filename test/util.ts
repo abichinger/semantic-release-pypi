@@ -243,10 +243,31 @@ class OutputAnalyzer<T extends Record<string, string[]>> {
   }
 }
 
+function setGitHubEnv(
+  token = 'gh-req-token',
+  url = 'https://token.actions.githubusercontent.com',
+) {
+  vi.stubEnv('ACTIONS_ID_TOKEN_REQUEST_TOKEN', token);
+  vi.stubEnv('ACTIONS_ID_TOKEN_REQUEST_URL', url);
+}
+
+function setGitLabEnv(token = 'gitlab-oidc-token') {
+  vi.stubEnv('PYPI_ID_TOKEN', token);
+}
+
+function clearTrustedPublisherEnv() {
+  vi.stubEnv('ACTIONS_ID_TOKEN_REQUEST_TOKEN', undefined);
+  vi.stubEnv('ACTIONS_ID_TOKEN_REQUEST_URL', undefined);
+  vi.stubEnv('PYPI_ID_TOKEN', undefined);
+}
+
 export {
   BuildInterface,
+  clearTrustedPublisherEnv,
   genPackage,
   genPluginArgs,
   hasPackage,
   OutputAnalyzer,
+  setGitHubEnv,
+  setGitLabEnv,
 };

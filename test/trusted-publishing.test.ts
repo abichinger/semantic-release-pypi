@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { getAPIToken, isTrustedPublisher } from '../lib/trusted-publishing.js';
-import { genPluginArgs } from './util.js';
+import {
+  clearTrustedPublisherEnv,
+  genPluginArgs,
+  setGitHubEnv,
+  setGitLabEnv,
+} from './util.js';
 
 // ---------------------------------------------------------------------------
 // Mock `got` so no real HTTP requests are made
@@ -21,31 +26,13 @@ function makeContext() {
   return genPluginArgs({}).context;
 }
 
-function setGitHubEnv(
-  token = 'gh-req-token',
-  url = 'https://token.actions.githubusercontent.com',
-) {
-  process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'] = token;
-  process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] = url;
-}
-
-function setGitLabEnv(token = 'gitlab-oidc-token') {
-  process.env['PYPI_ID_TOKEN'] = token;
-}
-
-function clearTrustedPublisherEnv() {
-  delete process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'];
-  delete process.env['ACTIONS_ID_TOKEN_REQUEST_URL'];
-  delete process.env['PYPI_ID_TOKEN'];
-}
-
 // ---------------------------------------------------------------------------
 // isTrustedPublisher
 // ---------------------------------------------------------------------------
 
 describe('isTrustedPublisher', () => {
   beforeEach(clearTrustedPublisherEnv);
-  afterEach(clearTrustedPublisherEnv);
+  afterEach(vi.unstubAllEnvs);
 
   test('returns false when no publisher env vars are set', () => {
     expect(isTrustedPublisher()).toBe(false);
@@ -57,12 +44,12 @@ describe('isTrustedPublisher', () => {
   });
 
   test('returns false when only ACTIONS_ID_TOKEN_REQUEST_TOKEN is set', () => {
-    process.env['ACTIONS_ID_TOKEN_REQUEST_TOKEN'] = 'token';
+    vi.stubEnv('ACTIONS_ID_TOKEN_REQUEST_TOKEN', 'token');
     expect(isTrustedPublisher()).toBe(false);
   });
 
   test('returns false when only ACTIONS_ID_TOKEN_REQUEST_URL is set', () => {
-    process.env['ACTIONS_ID_TOKEN_REQUEST_URL'] = 'https://example.com';
+    vi.stubEnv('ACTIONS_ID_TOKEN_REQUEST_URL', 'https://example.com');
     expect(isTrustedPublisher()).toBe(false);
   });
 
@@ -215,21 +202,12 @@ describe('getAPIToken', () => {
 // ---------------------------------------------------------------------------
 
 describe('verify: trusted publishing token stored in PYPI_TOKEN', () => {
-  let savedToken: string | undefined;
-
   beforeEach(() => {
-    savedToken = process.env['PYPI_TOKEN'];
-    delete process.env['PYPI_TOKEN'];
-    clearTrustedPublisherEnv();
+    vi.stubEnv('PYPI_TOKEN', undefined);
   });
 
   afterEach(() => {
-    if (savedToken !== undefined) {
-      process.env['PYPI_TOKEN'] = savedToken;
-    } else {
-      delete process.env['PYPI_TOKEN'];
-    }
-    clearTrustedPublisherEnv();
+    vi.unstubAllEnvs();
   });
 
   test('verify sets PYPI_TOKEN from trusted publisher when token is absent', async () => {
