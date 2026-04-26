@@ -11,6 +11,7 @@ import path from 'path';
 import TOML from 'smol-toml';
 import { Context } from './@types/semantic-release/index.js';
 import { DefaultConfig } from './default-options.js';
+import { getAPIToken, isTrustedPublisher } from './trusted-publishing.js';
 import { PluginConfig } from './types.js';
 import { __dirname, pipe, spawn } from './util.js';
 
@@ -107,12 +108,20 @@ async function verify(pluginConfig: PluginConfig, context: Context) {
   if (pypiPublish !== false) {
     const repo = process.env['PYPI_REPO_URL'] ?? repoUrl;
     const username = process.env['PYPI_USERNAME'] ?? repoUsername;
-    const token = process.env['PYPI_TOKEN'] ?? repoToken;
+    let token = process.env['PYPI_TOKEN'] ?? repoToken;
 
     if (token === '') {
-      throw new Error(
-        `Token is not set. Either set PYPI_TOKEN environment variable or repoToken in plugin configuration`,
-      );
+      if (isTrustedPublisher()) {
+        logger.log(
+          'No API token found, attempting to obtain one via Trusted Publishing',
+        );
+        token = await getAPIToken(context, repo);
+        process.env['PYPI_TOKEN'] = token;
+      } else {
+        throw new Error(
+          `Token is not set. Either set PYPI_TOKEN environment variable, repoToken in plugin configuration, or configure a Trusted Publisher (GitHub Actions or GitLab CI)`,
+        );
+      }
     }
 
     logger.log(`Verify authentication for ${username}@${repo}`);

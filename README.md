@@ -106,6 +106,67 @@ Working examples using Github Actions can be found here:
 | ```versionCmd```     | string \| array       | ```undefined```                       | Run a custom command to update the version (e.g. `hatch version ${version}`). `srcDir` is used as working directory. `versionCmd` is required if the version is set [dynamically](https://packaging.python.org/en/latest/specifications/pyproject-toml/#dynamic)         |
 | ```skipIfConflict``` | bool                  | ```false```                           | When true, a 409 Conflict response from the repository (e.g. package version already exists) is treated as success instead of a failure. Useful for immutable registries where re-running a partially failed release would otherwise fail on already-published packages. |
 
+## Publishing with a Trusted Publisher
+
+[Trusted Publishing](https://docs.pypi.org/trusted-publishers/) lets you publish to PyPI without a long-lived API token, using short-lived OIDC credentials issued by your CI provider instead.
+
+When neither `PYPI_TOKEN` nor `repoToken` is set, **semantic-release-pypi** automatically attempts Trusted Publishing.
+
+Supported publishers: **GitHub Actions** and **GitLab CI/CD**.
+
+### GitHub Actions
+
+Grant the `id-token: write` permission so GitHub can issue an OIDC token, then add a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/adding-a-publisher/) on PyPI for your repository. No token secrets are needed.
+
+```yaml
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write     # required for Trusted Publishing
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No PYPI_TOKEN needed — Trusted Publishing is used automatically
+```
+
+### GitLab CI/CD
+
+Use the [`id_tokens`](https://docs.gitlab.com/ee/ci/yaml/index.html#id_tokens) keyword to request an OIDC token with audience `pypi` (or `testpypi` for TestPyPI) and expose it as `PYPI_ID_TOKEN`. You must also configure a [Trusted Publisher](https://docs.pypi.org/trusted-publishers/adding-a-publisher/) on PyPI for your GitLab project.
+
+```yaml
+release:
+  stage: release
+  image: node:lts
+  id_tokens:
+    PYPI_ID_TOKEN:
+      aud: pypi   # use "testpypi" when publishing to TestPyPI
+  before_script:
+    - apt-get install -y python3 python3-pip
+    - pip3 install --upgrade pip
+  script:
+    - npx semantic-release
+  variables:
+    GITLAB_TOKEN: $GITLAB_TOKEN
+    # No PYPI_TOKEN needed — PYPI_ID_TOKEN is used automatically
+```
+
+*Note: This GitLab CI/CD configuration was not tested. Contributions to verify and improve it are welcome!*
+
 ## Publishing to multiple repositories
 
 Using `release.config.js` you can read repository credentials from environment variables and publish to multiple

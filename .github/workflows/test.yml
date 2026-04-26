@@ -9,6 +9,8 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     strategy:
       matrix:
         node-version: [18.x, 22.x]
